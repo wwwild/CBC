@@ -1,0 +1,496 @@
+<project name="CBC" default="help">
+
+  <!-- TODO - modify the following as needed:  -->
+  <property name="jar.jython" value="C:/Tools/jython2.5.3/jython.jar"/>
+  <property name="exe.ffmpeg" value="./ffmpeg-20141207-git-eb74839-win32-static/bin/ffmpeg.exe"/>
+  <property name="cdrtools"   value="C:/PROGRA~2/cdrtools"/>
+
+  <target  name="help"
+    description="Help text.">
+    <echo>To use this script type build followed by one or more targets.</echo>
+    <echo>The normal target to run the process from CD to web page upload is: weekly_sermon.</echo>
+    <echo>  e.g. build weekly_sermon</echo>
+    <echo>The build weekly_sermon target runs the following targets:</echo>
+    <echo>  convert_cd_to_mp3</echo>
+    <echo>  modify_html_file</echo>
+    <echo>  ftp_file</echo>
+    <echo></echo>
+    <echo>If any of the above encounters an error you may need to or want to restart with a particular target.</echo>
+    <echo></echo>
+    <echo>The initial step for running weekly_sermon is to insert the CD into the drive and identify</echo>
+    <echo>the track with the sermon. If it's on multiple tracks you have some manual work to do with</echo>
+    <echo>Audacity, which is beyond the scope of this help text.</echo>
+    <echo> </echo>
+    <echo>If you have to rerun the ftp_file target (not uncommon) note the name of the mp3 file created</echo>
+    <echo>and run it like this:</echo>
+    <echo>  build ftp_file -Dftp.file=ServerFiles/cbcserm12.24.2011.mp3 -Dftp.binary.mode=true</echo>
+    <echo>  build ftp_file -Dftp.file=ServerFiles/cbcmedia.html</echo>
+    <echo></echo>
+    <echo>At the end of the year, after all sermons have been processed run: build year_change</echo>
+    <echo></echo>
+  </target>
+
+  <target name="weekly_sermon"
+          description="Convert CD sermon to MP3 and update HTML on web site.">
+    <echo/>
+    <input
+      message="Input the CD track number"
+      validargs="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+      addproperty="cd.track.number"/>
+
+     <echo/>
+     <input
+       message="Enter month (01 - 12):"
+       validargs="01,02,03,04,05,06,07,08,09,10,11,12"
+       addproperty="cbc.sermon.month"/>
+
+     <echo/>
+     <input
+       message="Enter day (01 - 31):"
+       validargs="01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
+       addproperty="cbc.sermon.day"/>
+
+     <input
+       message="Enter year (11 - 20):"
+       validargs="11,12,13,14, 15, 16, 17, 18, 19, 20"
+       addproperty="cbc.sermon.year"/>
+
+     <antcall target="verify_sunday">
+       <param name="cbc.sermon.month" value="${cbc.sermon.month}"/>
+       <param name="cbc.sermon.day" value="${cbc.sermon.day}"/>
+       <param name="cbc.sermon.year" value="${cbc.sermon.year}"/>
+     </antcall>
+
+     <input
+       message="Is the following correct: CD track number=${cd.track.number} / Date=${cbc.sermon.month}/${cbc.sermon.day}/${cbc.sermon.year}"
+       validargs="yes,no"
+       addproperty="valid.cd.data"
+     />
+
+     <condition property="abort.cd.data">
+       <equals arg1="${valid.cd.data}" arg2="no"/>
+     </condition>
+
+     <antcall target="abort_cd_data">
+       <param name="abort.message" value="Rerun the weekly_sermon target, specifying the corect data."/>
+     </antcall>
+
+     <property name="cbc.sermon.file" value="cbcserm${cbc.sermon.month}.${cbc.sermon.day}.20${cbc.sermon.year}"/>
+     <echo>This script will produce ${cbc.sermon.file} from track ${cd.track.number} of the current CD.</echo>
+
+     <antcall target="convert_cd_to_mp3"/>
+
+     <delete file="${cbc.sermon.file}.wav"
+             verbose="true"
+             failonerror="false"/>
+
+     <antcall target="modify_html_file">
+       <param name="cbc.sermon.month" value="${cbc.sermon.month}"/>
+       <param name="cbc.sermon.day" value="${cbc.sermon.day}"/>
+       <param name="cbc.sermon.year" value="${cbc.sermon.year}"/>
+       <param name="cbc.sermon.file" value="${cbc.sermon.file}"/>
+     </antcall>
+
+     <antcall target="ftp_file">
+       <param name="ftp.file" value="ServerFiles/${cbc.sermon.file}.mp3"/>
+       <param name="ftp.binary.mode" value="true"/>
+     </antcall>
+     <antcall target="ftp_file">
+       <param name="ftp.file" value="ServerFiles/cbcmedia.html"/>
+     </antcall>
+  </target>
+
+  <target name="verify_sunday">
+    <property name="jar.jython" value="C:/Tools/jython2.5.3/jython.jar"/>
+    <property name="pyyear"  value="${cbc.sermon.year}"/>
+    <property name="pymonth" value="${cbc.sermon.month}"/>
+    <property name="pyday"   value="${cbc.sermon.day}"/>
+    <script language="jython"
+            classpath="./bsf.jar:commons-logging-1.1.1.jar:${jar.jython}">
+import os
+import string
+import calendar
+import datetime
+
+day = calendar.weekday(string.atoi(pyyear), string.atoi(pymonth), string.atoi(pyday))                          
+if day != 6:
+  print "WARNING: The date specified is not a Sunday!"
+else:
+  print "Confirmed the specified date (" + pymonth + "/" + pyday +"/" + pyyear + ") is a Sunday."
+    </script>
+  </target>
+
+
+  <target name="convert_cd_to_mp3" description="Convert a CD file (sermon) to MP3 format (cdrtools).">
+    <exec executable="cmd"
+          outputproperty="scsibus"
+          failonerror="true"
+          logerror="true">
+      <arg value="/c"/>
+      <arg value="${cdrtools}/cdrecord.exe"/>
+      <arg value="-scanbus"/>
+    </exec>
+    <!-- echo>${scsibus}</echo -->
+
+    <property name="jar.jython" value="C:/Tools/jython2.5.3/jython.jar"/>
+    <script language="jython"
+            classpath="./bsf.jar:commons-logging-1.1.1.jar:${jar.jython}">
+import re
+cdLoc = scsibus.find('CD-ROM')
+#print "CD:",cdLoc
+expression = '[0-9],[0-9],[0-9]'
+pattern = re.compile(expression)
+match = pattern.search(scsibus)
+#print match.start(), match.end(), scsibus[match.start():match.end()]
+iterator = pattern.finditer(scsibus)
+cdDrive = ""
+prevStart = 0
+prevEnd = 0
+busStart = 0
+busEnd = 0
+for match in iterator:
+  bus = scsibus[match.start():match.end()]
+  busStart = match.start()
+  busEnd = match.end()
+  #print match.start(), match.end(), scsibus[match.start():match.end()]
+  if busStart > cdLoc:
+    #print "The CD scsi spec is: " 
+    break
+  prevStart = busStart
+  prevEnd = busEnd
+  cdDrive = bus
+#print cdDrive
+project.setProperty("cdDrive", cdDrive)
+    </script>
+
+      <echo>CD Drive / SCSI bus: ${cdDrive}</echo>
+
+      <echo/>
+      <echo>Converting from CD (track ${cd.track.number}) to WAV (${cbc.sermon.file}) format (cdrtools) ...</echo>
+
+      <property name="cdda2wav.timeout" value="180000"/>
+	  
+      <!-- When using an Oracle JRE/JDK this executable may hang - bug 5003    -->
+      <!-- In this case one possible workaround is to pass a timeout attribute -->
+      <!-- on the exec:  timeout="360000"                                      -->
+      <exec executable="cmd"
+            outputproperty="cdconvert"
+            failonerror="false"
+            logerror="true"
+            timeout="${cdda2wav.timeout}"
+            inputstring="">
+        <arg value="/c"/>
+        <arg value="${cdrtools}/cdda2wav.exe"/>
+        <arg value="-dev=${cdDrive}"/>
+        <arg value="-x"/>
+        <arg value="-w"/>
+        <arg value="-q"/>
+        <arg value="-track=${cd.track.number}"/>
+        <arg value="${cbc.sermon.file}.wav"/>
+       </exec>
+
+
+       <antcall target="display_output">
+         <param name="display.output" value="${cdconvert}"/>
+       </antcall>
+
+      <echo/>
+
+      <delete file="${cbc.sermon.file}.mp3"
+              verbose="true"
+              failonerror="false"/>
+
+      <echo>Converting from WAV (${cbc.sermon.file}.wav) to MP3 format ...</echo>
+      <exec executable="${exe.ffmpeg}"
+            outputproperty="mp3convert"
+            failonerror="true"
+            logerror="true">
+        <arg line="-i ${cbc.sermon.file}.wav ${cbc.sermon.file}.mp3"/>
+      </exec>
+
+      <antcall target="display_output">
+        <param name="display.output" value="${mp3convert}"/>
+      </antcall>
+
+      <delete file="${cbc.sermon.file}.wav"
+              verbose="true"
+              failonerror="false"/>
+
+      <move file="${cbc.sermon.file}.mp3"
+        tofile="ServerFiles/${cbc.sermon.file}.mp3"/>
+
+  </target>
+
+  <target name="ftp_file"
+    description="FTP a file to the CBC server.  &#13;&#10;  For example: build ftp_file -Dftp.file=ServerFiles/cbcserm09.02.2012.mp3 -Dftp.binary.mode=true &#13;&#10;  You must specify credentials via env. vars. FTP_USERID and FTP_PASSWORD">
+    
+    <property environment="sysenv"/>
+    <property name="ftp.userid"      value="${sysenv.FTP_USERID}"/>
+    <property name="ftp.password"    value="${sysenv.FTP_PASSWORD}"/>
+    <property name="ftp.binary.mode" value="false"/>
+
+    <echo>Attempting to FTP file ${ftp.file} (format binary=${ftp.binary.mode}) to cbcofconcrete.org...</echo>
+    
+    <ftp server="cbcofconcrete.org"
+         userid="${ftp.userid}"
+         password="${ftp.password}"
+         verbose="true"
+         binary="${ftp.binary.mode}"
+         action="put"
+         >
+      <fileset file="${ftp.file}"/>
+    </ftp>
+    
+  </target>
+
+
+  <target name="modify_html_file"
+          description="Modify the cbcmedia.html file for a weekly sermon.">
+
+     <property name="pyfile"  value="${cbc.sermon.file}.mp3"/>
+     <property name="pyyear"  value="${cbc.sermon.year}"/>
+     <property name="pymonth" value="${cbc.sermon.month}"/>
+     <property name="pyday"   value="${cbc.sermon.day}"/>
+     <property name="cbc.sermon.speaker" value="Pastor Rob Thomas"/>
+     <property name="pyspeaker" value="${cbc.sermon.speaker}"/>
+
+     <echo>This script will add ${cbc.sermon.file}.mp3 to cbcmedia.html.</echo>
+
+     <input
+       message="Input the sermon title:"
+       addproperty="pytitle"/>
+     <echo>The sermon title specified is:${pytitle}.</echo>
+
+     <input
+       message="Input the Bible passage (e.g. 1Peter 1:3-5):"
+       addproperty="pypassage"/>
+     <echo>The sermon passage specified is:${pypassage}.</echo>
+      
+     <echo>The default speaker is "Pastor Rob Thomas".  If you need to specify a different speaker run the Ant command with: -Dcbc.sermon.speaker="Some name"</echo>
+     <echo>Speaker is:${pyspeaker}</echo>
+
+     <input
+       message="Is the following correct: Title=${pytitle} / Passage=${pypassage} / Speaker=${pyspeaker}? [yes, no]"
+       validargs="yes,no"
+       addproperty="valid.sermon.data"
+     />
+
+     <condition property="abort.sermon.data">
+       <equals arg1="${valid.sermon.data}" arg2="no"/>
+     </condition>
+
+     <antcall target="abort_sermon_data">
+       <param name="abort.message" value="Since the CD track has already been processed run the modify_html target and then run the ftp_file target, once for the mp3 file and once for the cbcmdedia.html file."/>
+     </antcall>
+
+     <tstamp>
+       <format property="backup.time" pattern="hhmmss"/>
+     </tstamp>
+     <property name="html.backup.file" value="ServerFiles/cbcmedia.html-BACKUP${backup.time}"/>
+     <copy file="ServerFiles/cbcmedia.html" tofile="${html.backup.file}"/>
+     <echo>HTML backup file is: ${html.backup.file}</echo>
+     
+    
+    <script language="jython"
+            classpath="./bsf.jar:commons-logging-1.1.1.jar:${jar.jython}">
+import os
+import string
+import calendar
+import datetime
+
+print 'Processing %s to cbcmedia.html' % (pyfile)
+
+months = {'01':'January', '02':'February', '03':'March', '04':'April', '05':'May', '06':'June', '07':'July', '08':'August', '09':'September', '10':'October', '11':'November', '12':'December'}
+
+MonthMenu = "&lt;li&gt;&lt;a href=\"#" + string.lower(months[pymonth]) + "20" + pyyear + "\"&gt;&lt;font size=\"+1\" color=\"#000125\"&gt;" + months[pymonth] + " 20" + pyyear + "&lt;/font&gt;&lt;/a&gt;&lt;/li&gt;\n"
+CommentedMenu = "&lt;!-- &lt;li&gt;&lt;a href=\"#" + string.lower(months[pymonth]) + "YYYY\"&gt;&lt;font size=\"+1\" color=\"#000125\"&gt;" + months[pymonth] + " YYYY&lt;/font&gt;&lt;/a&gt;&lt;/li&gt; --&gt;\n"
+
+outlist = []
+
+try:
+  if os.path.exists("./ServerFiles") and os.path.isfile("ServerFiles/cbcmedia.html"):
+    print "Expected files and file structure found OK."
+
+    infile = open("ServerFiles/cbcmedia.html","r")
+    list = infile.readlines()
+    infile.close()
+
+    mBeginMonth = " ### BEGIN MONTH " + string.lower(months[pymonth])
+    mID = pymonth + pyday + pyyear
+    mIDString = "&lt;a name=\"" + mID + "\"&gt;&lt;/a&gt;" 
+    mEntry = "&lt;li&gt;&lt;b&gt;\"" + pytitle + "\" (" + pypassage + ")&lt;/b&gt; - " + calendar.month_name[string.atoi(pymonth)] + " " + pyday + ", 20" + pyyear + "&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp&amp;nbsp;" + pyspeaker + "  | &lt;a href=\"" + pyfile + "\"&gt;&lt;font color=\"C44F79\"&gt;&lt;b&gt;Download&lt;/b&gt;&lt;/font&gt;&lt;/a&gt;&lt;/li&gt; \n" 
+    mIDPrefix = "a name=\""                                      
+    inMonth = "false"
+    inEntry = "false"
+    doneWithMonthID = "false"
+
+    #print "Begin loop..."
+    for line in list:
+      # 1. Ensure left link is enabled
+      if line == CommentedMenu:
+        outlist.append(MonthMenu)
+        #print line
+        continue
+
+      # 2. If month section ensure it's uncommented
+      if string.find(line, mBeginMonth) != -1:
+        #print "BEGINNING MONTH..."
+        inMonth = "true"
+        if string.find(line, "--&gt;") == -1:
+          outlist.append("&lt;!--" + mBeginMonth + " --&gt; \n")
+        else:
+          outlist.append(line)
+        #print line
+        continue
+
+      # Fix Month ID
+      if inMonth == "true":
+        if string.find(line, mIDPrefix + "#" + string.lower(calendar.month_name[string.atoi(pymonth)])+"YYYY") != -1:
+          outlist.append(string.replace(line,"YYYY","20"+pyyear))
+          #print "FIXING MONTH HEADER ..."
+          #print line
+          continue
+        #else:
+          #print "DIDN'T FIND ID was looking for: %s" % mIDPrefix + "#" + string.lower(calendar.month_name[string.atoi(pymonth)])+"YYYY" 
+
+      # 3. Signal to begin looking for place to insert sermon
+      if inMonth == "true":
+        if string.find(line, "### BEGIN MONTH LIST") != -1:
+          inEntry = "true"
+          if string.find(line, "### BEGIN MONTH LIST") == 0:
+            outlist.append("&lt;!-- ### BEGIN MONTH LIST --&gt; \n")
+          else:
+            outlist.append(line)
+          #print line
+          continue
+
+      # Fix header
+      if inMonth == "true":
+        if string.find(line, string.upper(calendar.month_name[string.atoi(pymonth)]) + " " + "YYYY") != -1:
+          #print "Replacing line: %s" % line
+          outlist.append(string.replace(line,"YYYY","20"+pyyear))
+          #print string.replace(line,"YYYY","20"+pyyear)
+          continue
+      
+      # 4. Add (or replace) Sunday's sermon
+      if inEntry == "true":
+        #print "In entry ..."
+
+        # 5. If end of month then insert sermon entry and ensure end of month comment replaced.
+        if string.find(line, "### END MONTH ") != -1:
+          #print "End of month ..."
+          outlist.append(mIDString + mEntry) 
+          #print "NEW ENTRY ..."
+          outlist.append("&lt;!-- ### END MONTH "+pymonth+"--&gt; \n")
+          inEntry = "false"
+          inMonth = "false"
+          #print line
+          continue
+        # 6. Else if not end of month create ID and see if insert location
+        elif string.find(line, mIDPrefix) != -1:
+          #print "Previous entry found ..."
+          mIDfromline = line[9:15] 
+          #print "  ID=%s" % (mID)
+          #print "  IDfromline = %s" % (mIDfromline)
+          if mIDfromline == mID:
+            #print "REPLACING ..."
+            outlist.append(mIDString + mEntry) 
+            inMonth = "false"
+            inEntry = "false"
+          elif mIDfromline &lt; mID:
+            #print "ADDING ..."
+            outlist.append(mIDString + mEntry) 
+            outlist.append(line) 
+            inEntry = "false"
+          else:
+            outlist.append(line) 
+            #print "SKIPPING ..."
+          #print "DONE WITH ENTRY."
+          #print line
+          continue
+      else:
+        if string.find(line, "### END MONTH ") != -1:
+          #print "End of month and entry ..."
+          #print line
+          inMonth = "false"
+      #print line
+      outlist.append(line) 
+    outfile = open("ServerFiles/cbcmedia.html","w")
+    outfile.writelines(outlist)
+  else:
+    print "Expected files not found. Verify that you are executing from expected location."
+  outfile.close()
+except:
+  print "Process failed - you should verify the integrity of your files.  cbcmedia.html will have had a backup made that you can rename/move back to cbcmedia for rerunning."
+  raise
+    </script>
+  </target>
+
+  <target name="year_change"
+          description="At year change rename cbcmedia.html and create a new file.">
+    <input
+      message="What is the old year?"
+      validargs="2011,2012,2013,2014,2015,2016,2017,2018,2019,2020"
+      addproperty="old.year"/>
+     <property name="pyoldyear"  value="${old.year}"/>
+
+     <move file="ServerFiles/cbcmedia.html" tofile="ServerFiles/cbcmedia${old.year}.html"/>
+     <tstamp>
+       <format property="backup.time" pattern="hhmmss"/>
+     </tstamp>
+     <copy file="ServerFiles/cbcmedia-Template.html" tofile="ServerFiles/cbcmedia-Template.html-BACKUP${backup.time}"/>
+     <property name="jar.jython" value="C:/Tools/jython2.5.3/jython.jar"/>
+     <script language="jython"
+             classpath="./bsf.jar:commons-logging-1.1.1.jar:${jar.jython}">
+import os
+import string
+outlist = []
+try:
+  if os.path.exists("./ServerFiles") and os.path.isfile("ServerFiles/cbcmedia-Template.html"):
+    print "Expected files and file structure found OK."
+
+    infile = open("ServerFiles/cbcmedia-Template.html","r")
+    list = infile.readlines()
+    infile.close()
+    InsertLocation="INSERT OLD YEARS HERE"
+    for line in list:
+      outlist.append(line) 
+      if string.find(line, InsertLocation) != -1:
+        outlist.append(" &lt;li&gt;&lt;a href=\"cbcmedia"+pyoldyear+".html\"&gt;&lt;font size=\"+1\" color=\"#000125\"&gt;"+pyoldyear+" Sermons&lt;/font&gt;&lt;/a&gt;&lt;/li&gt;")
+    outfile = open("ServerFiles/cbcmedia-Template.html","w")
+    outfile.writelines(outlist)
+    outfile.close()
+  else:
+    print "Expected files not found. Verify that you are executing from expected location."
+except:
+  print "Process failed - you should verify the integrity of your files."
+  print "  cbcmedia-Template.html will have had a backup made (ServerFiles/cbcmedia-Template.html-BACKUP${backup.time})"
+  print "  The previous cbcmedia.html file has been renamed to ServerFiles/cbcmedia${old.year}.html"
+  print "Check these files and rename as needed before rerunning."
+  raise
+</script>
+
+    <copy file="ServerFiles/cbcmedia-Template.html" tofile="ServerFiles/cbcmedia.html"/>
+
+    <antcall target="ftp_file">
+      <param name="ftp.file" value="ServerFiles/cbcmedia${old.year}.html"/>
+    </antcall>
+    <antcall target="ftp_file">
+      <param name="ftp.file" value="ServerFiles/cbcmedia.html"/>
+    </antcall>
+  </target>
+
+  <target name="display_output" if="verbose.conversions">
+    <echo>${display.output}</echo>
+  </target>
+
+  <target name="abort_cd_data" if="abort.cd.data">
+    <echo>abort.cd.data=${abort.cd.data}</echo>
+    <fail message="${abort.message}"/>
+  </target>
+
+  <target name="abort_sermon_data" if="abort.sermon.data">
+    <fail message="${abort.message}"/>
+  </target>
+
+</project>
