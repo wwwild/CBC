@@ -71,7 +71,7 @@ Once a year setup
 This process takes the existing cbcmedia.html for the year (after you've entered the last sermon for the year), renames it, creates a new cbcmedia.html file and FTPs the file to the server.
 * To run the process type: build year_change
 
-The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles and NewMP3s folders of the old year and copy all the old files from the previous year there.
+The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles and MP3s folders of the old year and copy all the old files from the previous year there.
 
 Example output:
 C:\Alligator\aardvark\CBC\Dev>build year_change
