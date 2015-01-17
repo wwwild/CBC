@@ -6,11 +6,11 @@ MP3s
 *.html-BACKUP*
 
 cbcjoinus.html
-cbcmedia.html
-cbcmedia2010.html
-cbcmedia2011.html
-cbcmedia2012.html
-cbcmedia2013.html
+#cbcmedia.html
+#cbcmedia2010.html
+#cbcmedia2011.html
+#cbcmedia2012.html
+#cbcmedia2013.html
 cbcministries.html
 cbcnews.events.html
 cbcother.html
