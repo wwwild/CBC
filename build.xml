@@ -132,6 +132,7 @@ else:
          verbose="true"
          binary="${ftp.binary.mode}"
          action="put"
+         remotedir="httpdocs"
          >
       <fileset file="${ftp.file}"/>
     </ftp>
