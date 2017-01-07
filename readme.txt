@@ -10,8 +10,8 @@ This automation is implemented by a set of free, open source software obtained f
 * Ant - to run the scripts - http://ant.apache.org/bindownload.cgi
 * jython - Java-based scripting implementation - http://www.jython.org/downloads.html
 * Ant and/or jython require the following Apache (www.apache.org) tools* Ant and/or jython require the following Apache (www.apache.org) tools:
-  * Apache_bsf - Download and copy bsf.jar to C:\CBC\Web
-  * Apache_commons_logging - Download and copy commons-logging-1.1.1.jar to C:\CBC\Web
+  * Apache_bsf - Download and copy bsf.jar to C:\GitHub\CBC
+  * Apache_commons_logging - Download and copy commons-logging-1.1.1.jar to C:\GitHub\CBC
   * Apache_commons_net - Download and copy commons-net-3.3.jar to the Ant lib directory.  Modify the CLASSPATH in build.bat if necessary.
   
 One prereq for this (aside from your computer being Windows) is that you have a Java installed on your computer, most do.  If it's just a Java runtime (i.e. without JAVA_HOME set) then you are going to see an annoying error message like this:
@@ -20,7 +20,12 @@ One prereq for this (aside from your computer being Windows) is that you have a 
 
 By installing a Java JDK and setting JAVA_HOME you can avoid this error.  (I have setup the build.bat file specifically for my machine and yours may be different: @set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_02)
 
+
+<Installation-Steps>
 Installation of this automation software is:
+TBD - detailed steps for setting up using GitHub\CBC
+
+Obsolete, previous steps; some which still apply.
 1. Unzipping the provided zip file to a suitable location; e.g.: C:\CBC\Web.
 2. Installing the open source software above:
    a) Download the Ant zip and unzip to C:\CBC\Web, for instance.
@@ -29,6 +34,8 @@ Installation of this automation software is:
    c) Set environment variables for the FTP credentials or add them to build.bat:
       @set FTP_USERID=user
       @set FTP_PASSWORD=password
+
+</Installation-Steps>
 
 
 There are two basic use cases:
@@ -159,7 +166,6 @@ I've written the code to be as simple and flexible as possible, but there are ce
    * Obtaining of input values, input file and date, which you can verify and rerun if you get them wrong.
    * modify_html_file - obtains the input values, sermon title, speaker, etc. and edits the cbcsermon.html file.
    * ftp_file - called once for the mp3 file and once for the html file; again, the mp3 file can take several minutes.
-
+   
+   
 <end>
-
-
