@@ -113,7 +113,7 @@ Total time: 33 seconds
 ====================
 Issues and Debugging
 ====================
- * Sometimes the FTP process will fail with an error like this:
+ * Sometimes the FTP process will fail with a network error like this:
     BUILD FAILED
     C:\albatross\CBC\Web\build.xml:53: The following error occurred while executing this line:
     C:\albatross\CBC\Web\build.xml:162: error during FTP transfer: java.net.SocketException: Connection reset
@@ -122,12 +122,31 @@ Issues and Debugging
     build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3
     build ftp_file -Dftp.file=ServerFiles/cbcmedia.html
 
- * There are a number of validations done by the script, which can cause the script to fail, requiring restarting.  If the script fails with BUILD FAILED review the messages and take the appropriate action.
+ * Also, there are a number of validations done by the script, which can cause the script to fail, requiring restarting.  
+ 
+ * If the script fails with BUILD FAILED review the messages and take the appropriate action.
 
- * The process can be terminated via Ctrl-C, but you need to be aware of where you are in the process and you may need to do some cleanup.  Details are beyond the scope of this document, but essentially involves reading the build.xml file and output to identify the location and cause of the failure.
-
- * Each time the script is run a backup of the .html file is created in the ServerFiles folder with the a suffix of -BACKUP and the time of day; e.g.: cbcmedia.html-BACKUP010332
-
+ * Also, the build could fail mid-stream - e.g. Windows update or by forced termination via Ctrl-C. In these cases it's best to be aware of where you are in the process as you may need to do some cleanup.  
+ 
+ Unfortunately, specific details of all possible error scenarios and recovery steps are beyond the scope of this document; however, these are some guidelines that can assist in recovery:
+   -) Enter the web page URL to confirm if the html page and mp3 files were copied to the server: file:///C:/Alligator/aardvark/CBC/Dev/ServerFiles/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click it's "Download" link; if the file plays then it's likely OK and you're done.
+   -) If either file is not on the server - html page or mp3 file - confirm that they are on your local PC.  In a Windows shell, in  your CBC GitHub folder enter:
+      ls -1at ServerFiles/MP3s/*.mp3 | head -1
+   You will get output like this:
+      ServerFiles/MP3s/170416_0310.mp3
+   which should be the last file you worked with from the memory stick.  If it's not you can start over from the beginning.
+   Otherwise, confirm the script copied and renamed this file for copying to the server:
+     ls -1at ServerFiles/*.mp3 | head -1
+   You will get output like this:
+     ServerFiles/cbcserm04.16.2017.mp3
+   If the date portion of the two files don't match then continue in this list of steps; matching files would be, e.g. from above: "170416" & "04.16.2017".
+   -) Each time the script is run a backup of the .html file is created before adding the new sermon.  This backup is in the CBC\ServerFiles folder.  If the backup exists with a matching date to the last sermon file you worked with then you know the script processed at least this far.  To check if the BACKUP file exists:
+   ls -1at ServerFiles/cbcmedia.html-BACKUP* | head -1
+   and if the date portion matches your latest sermon file date you know the script got as far as creating the backup.
+   TODO
+   Then to confirm if the most recent cbcmedia.html file was updated...
+   
+ 
 ===============================
 Resolving Multiple Sermon Files
 ===============================
@@ -166,6 +185,12 @@ I've written the code to be as simple and flexible as possible, but there are ce
    * Obtaining of input values, input file and date, which you can verify and rerun if you get them wrong.
    * modify_html_file - obtains the input values, sermon title, speaker, etc. and edits the cbcsermon.html file.
    * ftp_file - called once for the mp3 file and once for the html file; again, the mp3 file can take several minutes.
-   
-   
+
+=====
+TODOs   
+=====
+
+* Automate script to pick up file from date input, with optional -D override
+* Add Git commands to script
+* Change backup to use date input    
 <end>
