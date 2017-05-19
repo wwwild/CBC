@@ -3,22 +3,27 @@
 Introduction
 ============
 
-This set of directories and files represents an automated system for maintaining the CBC media (i.e. sermon) web site.
-(I didn't investigate the processing of the church calendar as I've never gotten confirmation about MS Publisher being able to save in PDF or some graphic format.)
+This set of directories and files represents an automated system for maintaining the CBC media (i.e. sermon) web page; the rest of the www.cbcofconcrete.org web pages are outside the scope of this automation.
 
-This automation is implemented by a set of free, open source software obtained from the following locations:
-* Ant - to run the scripts - http://ant.apache.org/bindownload.cgi
-* jython - Java-based scripting implementation - http://www.jython.org/downloads.html
-* Ant and/or jython require the following Apache (www.apache.org) tools* Ant and/or jython require the following Apache (www.apache.org) tools:
-  * Apache_bsf - Download and copy bsf.jar to C:\GitHub\CBC
-  * Apache_commons_logging - Download and copy commons-logging-1.1.1.jar to C:\GitHub\CBC
-  * Apache_commons_net - Download and copy commons-net-3.3.jar to the Ant lib directory.  Modify the CLASSPATH in build.bat if necessary.
+This automation is implemented by free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux). Unfortunately, this openness raises a number of technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below:
+
+* Java - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have Java installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  To confirm if Java is installed enter the following command at a command prompt:
+java -version
+As of this writing the current version of Java is 1.8. You should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the Java Platform (JDK) Download link, click the Accept License Agreement radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute or process it as appropriate. You will need to note the installation location of Java to later set the JAVA_HOME environment variable (see below).  
+
+* Ant - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version.  Download Ant from: https://ant.apache.org/bindownload.cgi  You will need to unzip the installation file to your target installation folder and note its location for setting the ANT_HOME environment variable (see below).
+
+* jython - this is Java implementation of the python scripting language and is used to validate that a sermon date is a Sunday. Download Jython from http://www.jython.org/downloads.html using the Standalone Jar link, as of this writing the current version is 2.7.0. Place the jython.jar file in the folder you will be running the scripts from.
+
+* Ant and jython require the following additional Apache (www.apache.org) tools:
+  * Apache_bsf - Download the binary zip from https://commons.apache.org/proper/commons-bsf/download_bsf.cgi and place the resulting bsf.jar file in the folder you will be running the scripts from. 
+  * Apache_commons_logging - Download the binary zip from https://commons.apache.org/proper/commons-logging/download_logging.cgi and place the resulting jar file in the folder you will be running the scripts from.
+  * Apache_commons_net - Download the binary zip from https://commons.apache.org/proper/commons-net/download_net.cgi and place the resulting jar file in the Ant lib folder and modify the CLASSPATH variable in build.bat if necessary.
   
-One prereq for this (aside from your computer being Windows) is that you have a Java installed on your computer, most do.  If it's just a Java runtime (i.e. without JAVA_HOME set) then you are going to see an annoying error message like this:
+  
+* GitHub - the script software is stored publicly on GitHub. You can access it via the web (https://github.com/wwwild/CBC.git) and you will need to setup a GitHub account to access it. There is a Sign Up link it the upper right corner of the web page. (Alternatively you can install the desktop client https://desktop.github.com/)
 
-  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar
 
-By installing a Java JDK and setting JAVA_HOME you can avoid this error.  (I have setup the build.bat file specifically for my machine and yours may be different: @set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_02)
 
 
 <Installation-Steps>
@@ -113,6 +118,19 @@ Total time: 33 seconds
 ====================
 Issues and Debugging
 ====================
+
+Installation issues:
+
+If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without JAVA_HOME set) you will see this error:
+
+  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar
+
+To resolve this error you must install a Java JDK and set the JAVA_HOME environment variable to point to that location (see build.bat).
+
+
+
+Runtime issues:
+
  * Sometimes the FTP process will fail with a network error like this:
     BUILD FAILED
     C:\albatross\CBC\Web\build.xml:53: The following error occurred while executing this line:
@@ -193,4 +211,5 @@ TODOs
 * Automate script to pick up file from date input, with optional -D override
 * Add Git commands to script
 * Change backup to use date input    
+
 <end>
