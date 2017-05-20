@@ -1,9 +1,9 @@
 <project name="CBC" default="help">
 
   <!-- TODO - modify the following as needed:  -->
-  <property name="jar.jython"          value="./jython.jar"/>
+  <property name="jar.jython"          value="./jython-standalone-2.7.0.jar"/>
   <property name="jar.bsf"             value="./bsf.jar"/>
-  <property name="jar.commons-logging" value="./commons-logging-1.1.1.jar"/>
+  <property name="jar.commons-logging" value="./commons-logging-1.2.jar"/>
 
   <target  name="help">
     <echo>To use this script type build followed by one or more targets.

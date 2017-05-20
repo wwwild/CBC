@@ -1,77 +1,112 @@
 
+Table of Contents
+
+1. Introduction
+2. Required software
+   A. Validating your software installation
+3. Using the software
+   A. Normal weekly sermon process
+   B. Once a year setup
+   C. Important notes
+4. Issues and Debugging
+   A. Installation issues
+   B. Runtime issues
+   C. Resolving multiple sermon files
+5. Limitations
+6. TODOs
+
+
 ============
 Introduction
 ============
 
-This set of directories and files represents an automated system for maintaining the CBC media (i.e. sermon) web page; the rest of the www.cbcofconcrete.org web pages are outside the scope of this automation.
+This set of directories and files represents an automated system for maintaining the CBC media web page; i.e., the sermon web page.  The rest of the www.cbcofconcrete.org web pages are outside the scope of this automation.
 
-This automation is implemented by free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux). Unfortunately, this openness raises a number of technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below:
+This automation is implemented with free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux); however, Windows-specific files (like .bat scripts) would need to be converted to be compatible with the target operating system. Unfortunately, the openness of this software raises some technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below:
 
-* Java - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have Java installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  To confirm if Java is installed enter the following command at a command prompt:
+
+=================
+Required software
+=================
+  
+* GitHub - the script software is stored publicly on GitHub and it's easiest to use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use this URL: https://github.com/wwwild/CBC.git) 
+
+These are the steps for Windows (in this case Windows 7 and, unfortunately, they will vary for other Windows versions):
+  * Click the appropriate download link; e.g. Download for Windows (64 bit).
+  * Save the file.
+  * Run the executable.
+  * After installation GitHub starts.
+  * Select "Create your free account." if you don't already have a login; otherwise, select "Sign into GitHub.com".
+  * Enter your credentials and and click Continue.
+  * Deselect the option to send usage information and click Finish.
+  * Once the GitHub desktop client starts:
+    * On the Select a repository screen click "Clone a repository".
+    * In the "Clone a repository" dialog enter the URL https://github.com/wwwild/CBC.git and your local path (you can take the default or specify a location of your choosing via the Choose... button, in this case the location you select will have "\CBC" added to the end of it automatically) and click the Clone button. Cloning will take a few minutes.
+
+
+* Java - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  To confirm if Java is installed enter the following command at a command prompt:
 java -version
-As of this writing the current version of Java is 1.8. You should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the Java Platform (JDK) Download link, click the Accept License Agreement radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute or process it as appropriate. You will need to note the installation location of Java to later set the JAVA_HOME environment variable (see below).  
+As of this writing the current version of Java is 1.8. If necessary you should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the Java Platform (JDK) Download link, click the Accept License Agreement radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute it as appropriate. You will need to note the installation location of Java to later set the JAVA_HOME environment variable (see below).  
 
-* Ant - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version.  Download Ant from: https://ant.apache.org/bindownload.cgi  You will need to unzip the installation file to your target installation folder and note its location for setting the ANT_HOME environment variable (see below).
+* Ant - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version.  Download Ant from: https://ant.apache.org/bindownload.cgi  You will need to unzip the installation file to your target installation folder and note its location for adding the Ant bin folder to the system PATH environment variable (e.g. if you unzip the Ant zip file to C:\Tools you would add c:\Tools\apache-ant-1.9.4\bin to the PATH) and for setting the ANT_HOME environment variable (see below). (To change the Windows system PATH environment variable (version dependent): Start Button, right click Computer and select Properties, select Advanced System Settings, click Environment Variables, in System variables select Path and click Edit..., add "" to the end of the Variable value: (do not replace it), and click OK; back out of the series of dialogs and windows by clicking OK as needed.)
 
-* jython - this is Java implementation of the python scripting language and is used to validate that a sermon date is a Sunday. Download Jython from http://www.jython.org/downloads.html using the Standalone Jar link, as of this writing the current version is 2.7.0. Place the jython.jar file in the folder you will be running the scripts from.
+* Jython - this is Java implementation of the Python scripting language and is used to validate that a sermon date is a Sunday. Download Jython from http://www.jython.org/downloads.html using the Standalone Jar link, as of this writing the current version is 2.7.0. Place the jython jar file in the CBC folder created when you cloned the GitHub repository, this is where you will be running the scripts from. The jar file is typically named with the version of the release it corresponds to (e.g. jython-standalone-2.7.0.jar) and you must ensure that the reference in build.xml corresponds to that name; search for TODO in that file to find the location where the jar is referenced). 
 
-* Ant and jython require the following additional Apache (www.apache.org) tools:
-  * Apache_bsf - Download the binary zip from https://commons.apache.org/proper/commons-bsf/download_bsf.cgi and place the resulting bsf.jar file in the folder you will be running the scripts from. 
-  * Apache_commons_logging - Download the binary zip from https://commons.apache.org/proper/commons-logging/download_logging.cgi and place the resulting jar file in the folder you will be running the scripts from.
-  * Apache_commons_net - Download the binary zip from https://commons.apache.org/proper/commons-net/download_net.cgi and place the resulting jar file in the Ant lib folder and modify the CLASSPATH variable in build.bat if necessary.
-  
-  
-* GitHub - the script software is stored publicly on GitHub. You can access it via the web (https://github.com/wwwild/CBC.git) and you will need to setup a GitHub account to access it. There is a Sign Up link it the upper right corner of the web page. (Alternatively you can install the desktop client https://desktop.github.com/)
+* Ant and Jython require the following additional Apache (www.apache.org) tools:
+  * Apache_bsf - Download the binary zip from https://commons.apache.org/proper/commons-bsf/download_bsf.cgi.  You must extract the bsf jar file from the zip and place it in the CBC folder created when you cloned the GitHub repository. The jar file should be found in the lib folder of the zip.
+  * Apache_commons_logging - Download the binary zip from https://commons.apache.org/proper/commons-logging/download_logging.cgi. You must extract the commons-logging jar file from the zip and place it in the CBC folder created when you cloned the GitHub repository. The jar file is typically named with the version of the release it corresponds to (e.g. commons-logging-1.2.jar) and you must ensure that the reference in build.xml corresponds to that name; search for TODO in that file to find the location where the jar is referenced). 
+  * Apache_commons_net - Download the binary zip from https://commons.apache.org/proper/commons-net/download_net.cgi and place the resulting jar file in the Ant lib folder and modify the CLASSPATH variable in build.bat (in the CBC folder) if necessary (i.e., the jar file is typically named with the version of the release it corresponds to (e.g. commons-net-3.6.jar) and you must ensure that the reference in build.bat corresponds to that name).
 
-
-
-
-<Installation-Steps>
-Installation of this automation software is:
-TBD - detailed steps for setting up using GitHub\CBC
-
-Obsolete, previous steps; some which still apply.
-1. Unzipping the provided zip file to a suitable location; e.g.: C:\CBC\Web.
-2. Installing the open source software above:
-   a) Download the Ant zip and unzip to C:\CBC\Web, for instance.
-      Modify build.bat to reflect this location
-   b) Download Jython and install. Copy jython.jar to C:\CBC\Web (otherwise a change to build.xml will be needed to point to any alternate location).
-   c) Set environment variables for the FTP credentials or add them to build.bat:
-      @set FTP_USERID=user
-      @set FTP_PASSWORD=password
-
-</Installation-Steps>
+* Local customization - Before using the CBC scripts you need to setup local customizations to set expected environment variables.  These are the required environment variables in the format appropriate for a Windows .bat file (e.g. SetEnvironment.bat - note, this file is not checked into GitHub as it contains our private credentials) that you would run prior to running the Ant script; for example:  
+SET ANT_HOME=c:\Tools\apache-ant-1.9.4
+@set FTP_USERID=<replace with the userid for the cbcofconcrete server>
+@set FTP_PASSWORD=<replace with the password for the cbcofconcrete server>
 
 
-There are two basic use cases:
+=====================================
+Validating your software installation
+=====================================
+
+To confirm you have successfully installed the software run these commands (expected output shown):
+1. Open a Windows Command Processor window (a.k.a a DOS command prompt) via the Start button.
+2. Go to the directory where you've setup the GitHub repository; e.g. cd c:\CBC
+3. Set the required environment variables; e.g. SetEnvironment.bat
+4. Run: build -p
+This is the expected output:
+Buildfile: c:\CBC\build.xml
+
+Main targets:
+
+ ftp_file          FTP a file to the CBC server (called by weekly_sermon).
+                   For example: build ftp_file -Dftp.file=ServerFiles/cbcserm09.02.2012.mp3 -Dftp.binary.mode=true
+                   You must specify credentials via env. vars. FTP_USERID and FTP_PASSWORD
+ modify_html_file  Modify the cbcmedia.html file for a weekly sermon (called by weekly_sermon).
+ weekly_sermon     Copy MP3 file, update HTML, and FTP to web site.
+ year_change       At year change rename cbcmedia.html and create a new file.
+Default target: help
+
+
+==================
+Using the software
+==================
+
+There are two typical use cases:
 1. Normal weekly sermon process
-2. Once a year setup
+2. Once a year 
+
+There are variations on the above in the event of errors; e.g. the server is down.  These are covered below under "Issues and debugging".
+
 
 ============================
 Normal weekly sermon process 
 ============================
 This process takes the sermon MP3, updates the HTML file, and FTPs the files to the server. For this process you need to have:
-  * The weekly service MP3 file (assuming the sermon is recorded as a single MP3 file).  Some sound technicians, for some silly reason, break the sermon up into multiple tracks, which then have to be handled "manually"; see "Resolving Multiple Sermon Files" below.
-  * Copy the sermon MP3 file to C:\CBC\Web\ServerFiles\MP3s
-  * You also need to know the sermon date (MM/DD/YYYY), title, Bible passage, and speaker, which is assumed to be Rob (for variations see below).
+  * The weekly service MP3 file (assuming the sermon is recorded as a single MP3 file; otherwise, see "Resolving multiple sermon files" below). You will reference this when prompted by the script; e.g. e:\170514_0314.mp3 (depending where Windows mounts the memory stick, or you can copy it to another location and reference it from there).
+  * The sermon date (which will be promped for as a two-digit month, two-digit day, and two-digit year), title, Bible passage, and speaker, which is assumed to be Rob (for variations see below).
 
 Open a Windows DOS command prompt, which you can do via one of these two mechanisms:
- * Start Menu -> Run..., typing cmd, and pressing enter
- * Window explorer, navigate to the location you unzipped the files to, press the shift key and mouse right-click (context menu) and select "Open command window here"
-
-To verify the location and installation type: build -p, which should give you; e.g.:
-    Buildfile: c:\albatross\CBC\Web\build.xml
-
-    Main targets:
-
-     ftp_file                FTP a file to the CBC server.
-                             build ftp_file -Dftp.file=ServerFiles/cbcserm09.02.2012.mp3 -Dftp.binary.mode=true
-                             You must specify credentials via env. vars. FTP_USERID and FTP_PASSWORD 
-     modify_html_file        Modify the cbcmedia.html file for a weekly sermon.
-     weekly_sermon  Copy sermon MP3 and update HTML on web site.
-     year_change             At year change rename cbcmedia.html and create a new file and template. See "Once a year setup" below.
-
-    Default target: help
+ * Start Menu -> Run..., typing cmd, and pressing enter; then go to the location of the GitHub repository; e.g.: cd c:\CBC
+ * Window explorer, navigate to the location you unzipped the files to, press the shift key and mouse right-click (context menu) and select "Open command window here" (probably Windows version and configuration dependent)
 
 To run the process type: build weekly_sermon
 Follow the prompts.
@@ -86,37 +121,47 @@ This process takes the existing cbcmedia.html for the year (after you've entered
 The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles and MP3s folders of the old year and copy all the old files from the previous year there.
 
 Example output:
-C:\Alligator\aardvark\CBC\Dev>build year_change
+C:\CBC>build year_change
 
-C:\Alligator\aardvark\CBC\Dev>ant year_change
-Buildfile: C:\Alligator\aardvark\CBC\Dev\build.xml
+C:\CBC>ant year_change
+Buildfile: C:\CBC\build.xml
 
 year_change:
     [input] What is the old year? (2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020)
 2012
-     [move] Moving 1 file to C:\Alligator\aardvark\CBC\Dev\ServerFiles
-     [copy] Copying 1 file to C:\Alligator\aardvark\CBC\Dev\ServerFiles
+     [move] Moving 1 file to C:\CBC\ServerFiles
+     [copy] Copying 1 file to C:\CBC\ServerFiles
    [script] Expected files and file structure found OK.
-     [copy] Copying 1 file to C:\Alligator\aardvark\CBC\Dev\ServerFiles
+     [copy] Copying 1 file to C:\CBC\ServerFiles
 
 ftp_file:
      [echo] Attempting to FTP file ServerFiles/cbcmedia2012.html (format binary=false) to cbcofconcrete.org...
       [ftp] sending files
-      [ftp] transferring C:\Alligator\aardvark\CBC\Dev\ServerFiles\cbcmedia2012.html
+      [ftp] transferring C:\CBC\ServerFiles\cbcmedia2012.html
       [ftp] 1 files sent
 
 ftp_file:
      [echo] Attempting to FTP file ServerFiles/cbcmedia.html (format binary=false) to cbcofconcrete.org...
       [ftp] sending files
-      [ftp] transferring C:\Alligator\aardvark\CBC\Dev\ServerFiles\cbcmedia.html
+      [ftp] transferring C:\CBC\ServerFiles\cbcmedia.html
       [ftp] 1 files sent
 
 BUILD SUCCESSFUL
 Total time: 33 seconds
 
 
+===============
+Important notes
+===============
+
+1. Always process the sermons in date order; i.e. oldest first. No idea what happens if you deviate from this, but I assume it will break the process/HTML file.
+2. Never edit the cbcmedia.html file manually unless you know what you are doing.  The ant regex processing depends on the format I've established; so, if you mess anything up it will break the process.
+3. The scope of this is just the cbcmedia.html file and none of the other cbcofconcrete.org site files.  Therefore, you should have your own backup of these files.  Also, to simplify things I assume that the mp3 files on the cbcofconcrete.org site are the authortative versions; so, again, you should have your own backups.  (We could consider adding these to GitHub, and not a bad idea, I've just not done that.)
+4. Windows paths use backslashes, but the Ant/Java environment is quite happy with forward slashes.  I didn't take the time to make this consistent (my/this PC uses cygwin, which is also forward/backslash agnostic).  This could cause some angst/errors.
+
+
 ====================
-Issues and Debugging
+Issues and debugging
 ====================
 
 Installation issues:
@@ -140,14 +185,14 @@ Runtime issues:
     build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3
     build ftp_file -Dftp.file=ServerFiles/cbcmedia.html
 
- * Also, there are a number of validations done by the script, which can cause the script to fail, requiring restarting.  
+ * Also, there are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting.  
  
  * If the script fails with BUILD FAILED review the messages and take the appropriate action.
 
  * Also, the build could fail mid-stream - e.g. Windows update or by forced termination via Ctrl-C. In these cases it's best to be aware of where you are in the process as you may need to do some cleanup.  
  
  Unfortunately, specific details of all possible error scenarios and recovery steps are beyond the scope of this document; however, these are some guidelines that can assist in recovery:
-   -) Enter the web page URL to confirm if the html page and mp3 files were copied to the server: file:///C:/Alligator/aardvark/CBC/Dev/ServerFiles/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click it's "Download" link; if the file plays then it's likely OK and you're done.
+   -) Enter the web page URL to confirm if the html page and mp3 files were copied to the server: file:///C:/CBC/ServerFiles/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click it's "Download" link; if the file plays then it's likely OK and you're done.
    -) If either file is not on the server - html page or mp3 file - confirm that they are on your local PC.  In a Windows shell, in  your CBC GitHub folder enter:
       ls -1at ServerFiles/MP3s/*.mp3 | head -1
    You will get output like this:
@@ -166,14 +211,15 @@ Runtime issues:
    
  
 ===============================
-Resolving Multiple Sermon Files
+Resolving multiple sermon files
 ===============================
-If the sound technician decides for some silly reason to break the sermon into a bunch of small files your work is significantly greater.  Roughly, the steps are:
+
+This used to be more of an issue when we had to process sermons via CD; however, it could possibly still happen that the technician has to restart the recording process and we wind up with more than one MP3 file, which need to be combined into a single file. Roughly, the steps are:
 * You have Audacity installed (beyond the scope of this document).
 * Open two Audacity Windows.
 * In one Audacity window open the first MP3 file and:
   * Click the track drop-down window and select Split Stero Track
-  * Close one of the two (X)
+  * Close one of the two (X) tracks
   * Click the track drop-down window and select Mono
   * Edit->Select All
   * Edit->Copy
@@ -196,6 +242,7 @@ If the sound technician decides for some silly reason to break the sermon into a
 ===========
 Limitations
 ===========
+
 I've written the code to be as simple and flexible as possible, but there are certain tradeoffs and limitations it may help you to be aware of. Namely;
 * I chose the software because it's free and easy to code in (specifically Ant & jython).
 * But Ant limits the structure of scripts such that you can pass parameters down, but never up.  So, this means that I had to structure things the way I felt they would most likely work/fail so as to minimize wasted rerun time.  So, the structure of the code and rerun pattern looks something like this:
