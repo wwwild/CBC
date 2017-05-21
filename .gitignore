@@ -44,6 +44,7 @@ Temporary Items
 
 
 # Specific to CBC
+SetEnvironment.bat
 MP3s/
 *.jar
 *.zip
