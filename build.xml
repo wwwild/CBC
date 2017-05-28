@@ -5,6 +5,8 @@
   <property name="jar.bsf"             value="./bsf.jar"/>
   <property name="jar.commons-logging" value="./commons-logging-1.2.jar"/>
 
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
   <target  name="help">
     <echo>To use this script type build followed by one or more targets.
     (Use build -p for a list of targets.)&#13;&#10;
@@ -23,29 +25,70 @@
     </echo>
   </target>
 
-  <target name="weekly_sermon"
-          description="Copy MP3 file, update HTML, and FTP to web site.">
+
+    <target name="get_sermon_file_name"
+          unless="latest.mp3.file"
+          description="Obtains the latest MP3 file from specified drive (defaults to E:\).">
     <echo/>
     <input
-      message="Input the input MP3 file (relative or absolute; e.g. ServerFiles/MP3s/12096_040.mp3):"
-      addproperty="input.mp3.file"/>
+      message="RESPOND - Input the memory stick drive letter - press enter to accept the default:"
+      addproperty="input.mp3.dir"
+      defaultvalue="E:"/>
 
-     <echo/>
-     <input
-       message="Enter month (01 - 12):"
-       validargs="01,02,03,04,05,06,07,08,09,10,11,12"
-       addproperty="cbc.sermon.month"/>
+    <timestampselector property="latest.mp3.file">
+    <path>
+      <fileset dir="${input.mp3.dir}/">
+        <include name="*.mp3" />
+      </fileset>
+    </path>
+    </timestampselector>
 
-     <echo/>
-     <input
-       message="Enter day (01 - 31):"
-       validargs="01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
-       addproperty="cbc.sermon.day"/>
+    <echo message="INFO - Latest MP3 file is:  ${latest.mp3.file}" />
 
-     <input
-       message="Enter year (12 - 20):"
-       validargs="12,13,14,15,16,17,18,19,20"
-       addproperty="cbc.sermon.year"/>
+  </target>
+
+
+    <target name="parse_date_from_file"
+    depends="get_sermon_file_name"
+    description="">
+    <property name="mp3.file" value="${latest.mp3.file}"/>
+  
+    <loadresource property="cbc.sermon.year">
+      <propertyresource name="mp3.file"/>
+      <filterchain>
+        <tokenfilter>
+          <filetokenizer/>
+          <replaceregex pattern="(.:\\)(\d\d)(\d\d\d\d_\d\d\d\d.mp3)" replace="\2" />
+       </tokenfilter>
+      </filterchain>
+    </loadresource>
+
+    <loadresource property="cbc.sermon.month">
+      <propertyresource name="mp3.file"/>
+      <filterchain>
+        <tokenfilter>
+          <filetokenizer/>
+          <replaceregex pattern="(.:\\\d\d)(\d\d)(\d\d_\d\d\d\d.mp3)" replace="\2" />
+       </tokenfilter>
+      </filterchain>
+    </loadresource>
+ 
+
+    <loadresource property="cbc.sermon.day">
+      <propertyresource name="mp3.file"/>
+      <filterchain>
+        <tokenfilter>
+          <filetokenizer/>
+          <replaceregex pattern="(.:\\\d\d\d\d)(\d\d)(_\d\d\d\d.mp3)" replace="\2" />
+       </tokenfilter>
+      </filterchain>
+    </loadresource>
+  </target>
+
+
+  <target name="weekly_sermon"
+          depends="parse_date_from_file"
+          description="Copy MP3 file, update HTML, and FTP to web site.">
 
      <antcall target="verify_sunday">
        <param name="cbc.sermon.month" value="${cbc.sermon.month}"/>
@@ -54,7 +97,7 @@
      </antcall>
 
      <input
-       message="Is the following correct: Input file name=${input.mp3.file} / Date=${cbc.sermon.month}/${cbc.sermon.day}/${cbc.sermon.year}?  [Yy]es, [Nn]o"
+       message="RESPOND - Is the following correct: Input file name=${latest.mp3.file} / Date=${cbc.sermon.month}/${cbc.sermon.day}/${cbc.sermon.year}?  [Yy]es, [Nn]o"
        validargs="Yes,yes,Y,y,No,no,N,n"
        addproperty="valid.input.data"
      />
@@ -67,17 +110,17 @@
      </condition>
 
      <antcall target="abort_input_data">
-       <param name="abort.message" value="Rerun the weekly_sermon target, specifying the corect data."/>
+       <param name="abort.message" value="Rerun the weekly_sermon target, taking appropriate action or specifying the correct data."/>
      </antcall>
 
      <property name="cbc.sermon.file" value="cbcserm${cbc.sermon.month}.${cbc.sermon.day}.20${cbc.sermon.year}"/>
-     <echo>This script will produce ${cbc.sermon.file} from input MP3 file ${input.mp3.file}.</echo>
+     <echo>INFO - This script will produce ${cbc.sermon.file} from input MP3 file ${latest.mp3.file}.</echo>
 
-     <available file="${input.mp3.file}" property="input.mp3.file.found"/>
-     <fail unless="input.mp3.file.found"
-       message="Input MP3 file (${input.mp3.file}) not found.  Cannot continue!  Rerun the weekly_sermon target with the correct input file name and location."/>
+     <available file="${latest.mp3.file}" property="latest.mp3.file.found"/>
+     <fail unless="latest.mp3.file.found"
+       message="ERROR - Input MP3 file (${latest.mp3.file}) not found.  Cannot continue!  Rerun the weekly_sermon target with the correct input file name and location."/>
 
-     <copy file="${input.mp3.file}" 
+     <copy file="${latest.mp3.file}" 
            tofile="ServerFiles/${cbc.sermon.file}.mp3"
            verbose="true"/>
 
@@ -110,9 +153,9 @@ import datetime
 
 day = calendar.weekday(string.atoi(pyyear), string.atoi(pymonth), string.atoi(pyday))                          
 if day != 6:
-  print "WARNING: The date specified is not a Sunday!"
+  print "WARNING - The date specified is not a Sunday!"
 else:
-  print "Confirmed the specified date (" + pymonth + "/" + pyday +"/" + pyyear + ") is a Sunday."
+  print "INFO - Confirmed the specified date (" + pymonth + "/" + pyday +"/" + pyyear + ") is a Sunday."
     </script>
   </target>
 
@@ -125,7 +168,7 @@ else:
     <property name="ftp.password"    value="${sysenv.FTP_PASSWORD}"/>
     <property name="ftp.binary.mode" value="false"/>
 
-    <echo>Attempting to FTP file ${ftp.file} (format binary=${ftp.binary.mode}) to cbcofconcrete.org...</echo>
+    <echo>INFO - Attempting to FTP file ${ftp.file} (format binary=${ftp.binary.mode}) to cbcofconcrete.org...</echo>
     <ftp server="cbcofconcrete.org"
          userid="${ftp.userid}"
          password="${ftp.password}"
@@ -139,6 +182,28 @@ else:
   </target>
 
 
+  <target name="is_server_up"
+    description="Attempt to access cbcofconcrete.org FTP server to assess whether the process will succeed.">
+ 
+    <property environment="sysenv"/>
+    <property name="ftp.userid"      value="${sysenv.FTP_USERID}"/>
+    <property name="ftp.password"    value="${sysenv.FTP_PASSWORD}"/>
+    <property name="ftp.binary.mode" value="false"/>
+
+    <echo>INFO - Attempting to access cbcofconcrete.org FTP server...</echo>
+    <ftp server="cbcofconcrete.org"
+         userid="${ftp.userid}"
+         password="${ftp.password}"
+         verbose="true"
+         action="list"
+         listing="listing.txt"
+         >
+      <fileset file="${ftp.file}"/>
+    </ftp>
+    <delete file="listing.txt"/>
+  </target>
+
+
   <target name="modify_html_file"
           description="Modify the cbcmedia.html file for a weekly sermon (called by weekly_sermon).">
 
@@ -148,26 +213,26 @@ else:
      <property name="pyday"   value="${cbc.sermon.day}"/>
      <property name="cbc.sermon.speaker" value="Pastor Rob Thomas"/>
 
-     <echo>This script will add ${cbc.sermon.file}.mp3 to cbcmedia.html.</echo>
+     <echo>INFO - This script will add ${cbc.sermon.file}.mp3 to cbcmedia.html.</echo>
 
      <input
-       message="Input the sermon title:"
+       message="RESPOND - Input the sermon title:"
        addproperty="pytitle"/>
-     <echo>The sermon title specified is:${pytitle}.</echo>
+     <echo>INFO - The sermon title specified is:${pytitle}.</echo>
 
      <input
-       message="Input the Bible passage (e.g. 1Peter 1:3-5):"
+       message="RESPOND - Input the Bible passage (e.g. 1Peter 1:3-5):"
        addproperty="pypassage"/>
-     <echo>The sermon passage specified is:${pypassage}.</echo>
+     <echo>INFO - The sermon passage specified is:${pypassage}.</echo>
       
      <input
-       message="Input the speaker's name (default is: Pastor Rob Thomas):"
+       message="RESPOND - Input the speaker's name press enter to accept the default:"
        defaultvalue="${cbc.sermon.speaker}"
        addproperty="pyspeaker"/>
-     <echo>The speaker specified is: ${pyspeaker}.</echo>
+     <echo>INFO - The speaker specified is: ${pyspeaker}.</echo>
 
      <input
-       message="Is the following correct: Title=${pytitle} / Passage=${pypassage} / Speaker=${pyspeaker}? [Yy]es, [Nn]o"
+       message="RESPOND - Is the following correct: Title=${pytitle} / Passage=${pypassage} / Speaker=${pyspeaker}? [Yy]es, [Nn]o"
        validargs="Yes,yes,Y,y,No,no,N,n"
        addproperty="valid.sermon.data"
      />
@@ -188,7 +253,7 @@ else:
      </tstamp>
      <property name="html.backup.file" value="ServerFiles/cbcmedia.html-BACKUP${backup.time}"/>
      <copy file="ServerFiles/cbcmedia.html" tofile="${html.backup.file}"/>
-     <echo>HTML backup file is: ${html.backup.file}</echo>
+     <echo>INFO - HTML backup file is: ${html.backup.file}</echo>
      
     <script language="jython"
             classpath="${jar.bsf}:${jar.commons-logging}:${jar.jython}">
@@ -317,10 +382,10 @@ try:
     outfile = open("ServerFiles/cbcmedia.html","w")
     outfile.writelines(outlist)
   else:
-    print "Expected files not found. Verify that you are executing from expected location."
+    print "ERROR - Expected files not found. Verify that you are executing from expected location."
   outfile.close()
 except:
-  print "Process failed - you should verify the integrity of your files.  cbcmedia.html will have had a backup made that you can rename/move back to cbcmedia for rerunning."
+  print "ERROR - Process failed - you should verify the integrity of your files.  cbcmedia.html will have had a backup made that you can rename/move back to cbcmedia for rerunning."
   raise
     </script>
   </target>
@@ -328,8 +393,8 @@ except:
   <target name="year_change"
           description="At year change rename cbcmedia.html and create a new file.">
     <input
-      message="What is the old year?"
-      validargs="2011,2012,2013,2014,2015,2016,2017,2018,2019,2020"
+      message="RESPOND - What is the old year?"
+      validargs="2017,2018,2019,2020,2021,2022,2023,2024,2025,2026"
       addproperty="old.year"/>
      <property name="pyoldyear"  value="${old.year}"/>
 
@@ -345,7 +410,7 @@ import string
 outlist = []
 try:
   if os.path.exists("./ServerFiles") and os.path.isfile("ServerFiles/cbcmedia-Template.html"):
-    print "Expected files and file structure found OK."
+    print "INFO - Expected files and file structure found OK."
 
     infile = open("ServerFiles/cbcmedia-Template.html","r")
     list = infile.readlines()
@@ -359,12 +424,12 @@ try:
     outfile.writelines(outlist)
     outfile.close()
   else:
-    print "Expected files not found. Verify that you are executing from expected location."
+    print "ERROR - Expected files not found. Verify that you are executing from expected location."
 except:
-  print "Process failed - you should verify the integrity of your files."
-  print "  cbcmedia-Template.html will have had a backup made (ServerFiles/cbcmedia-Template.html-BACKUP${backup.time})"
-  print "  The previous cbcmedia.html file has been renamed to ServerFiles/cbcmedia${old.year}.html"
-  print "Check these files and rename as needed before rerunning."
+  print "ERROR - Process failed - you should verify the integrity of your files."
+  print "ERROR -   cbcmedia-Template.html will have had a backup made (ServerFiles/cbcmedia-Template.html-BACKUP${backup.time})"
+  print "ERROR -   The previous cbcmedia.html file has been renamed to ServerFiles/cbcmedia${old.year}.html"
+  print "ERROR - Check these files and rename as needed before rerunning."
   raise
 </script>
 
@@ -378,17 +443,13 @@ except:
     </antcall>
   </target>
 
-  <target name="display_output" if="verbose.conversions">
-    <echo>${display.output}</echo>
-  </target>
-
   <target name="abort_input_data" if="abort.input.data">
-    <echo>abort.input.data=${abort.input.data}</echo>
-    <fail message="${abort.message}"/>
+    <echo>ERROR - abort.input.data=${abort.input.data}</echo>
+    <fail message="ERROR - ${abort.message}"/>
   </target>
   
   <target name="abort_sermon_data" if="abort.sermon.data">
-    <fail message="${abort.message}"/>
+    <fail message="ERROR - ${abort.message}"/>
   </target>
   
 </project>

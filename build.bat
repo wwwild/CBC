@@ -2,4 +2,4 @@
 
 @set CLASSPATH=%ANT_HOME%\lib\commons-net-3.6.jar
 
-ant %*
+@call ant %*
