@@ -104,16 +104,21 @@ There are variations on the above in the event of errors; e.g. the server is dow
 ============================
 Normal weekly sermon process 
 ============================
-This process takes the sermon MP3, updates the HTML file, and FTPs the files to the server. For this process you need to have:
+
+Normally, if you're the only one working on the CBC site you won't have to worry about anyone else's changes; but, to be sure you should fetch the latest changes before starting the process:
+
+1. Start the GitHub Desktop via the Windows Start button.
+2. Use the "Fetch origin" button on the upper right to ensure your environment has the latest changes. 
+
+
+This remainder of the process takes the sermon MP3, updates the HTML file, and FTPs the files to the server. For this process you need to have:
   * The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.
   * The sermon information:
     * Sermon title
     * Bible passage
     * Speaker, which defaults to Rob.
 
-
 To run the process double click the CBC-Sermon-Desktop.bat file (shortcut) on your Windows desktop and follow the prompts.
-
 
 Assumptions and defaults:
 1. The CBC memory stick inserted into a USB port will map to Windows drive E: - if this is not the case you can specify an alternate drive letter at the "RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]" prompt; e.g. G: (confirm the drive mapping with Windows Explorer).
@@ -170,7 +175,8 @@ Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to G
 2. The Changes tab (on the left) will show you the changed files with the details of the changes on the right.
 3. In the Summary line (near bottom left) enter a change summary and a more detailed description in the Description control.
 4. Use the "Commit to master" button on the bottom left to commit the changes to your local environment.
-5. Use the "Push to origin" button tab on the upper right to push the changes to the GitHub server.
+5. Use the "Push origin" button on the upper right to push the changes to the GitHub server.
+
 
 =================
 Once a year setup
