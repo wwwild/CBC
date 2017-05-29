@@ -1,3 +1,4 @@
+>> CBC Weekly Sermon Automation Process <<
 
 Table of Contents
 
@@ -6,6 +7,8 @@ Table of Contents
    A. Validating your software installation
 3. Using the software
    A. Normal weekly sermon process
+      Process Description
+      Changes to GitHub
    B. Once a year setup
    C. Important notes
 4. Issues and Debugging
@@ -22,16 +25,16 @@ Introduction
 
 This set of directories and files represents an automated system for maintaining the CBC media web page; i.e., the sermon web page.  The rest of the www.cbcofconcrete.org web pages are outside the scope of this automation.
 
-This automation is implemented with free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux); however, Windows-specific files (like .bat scripts) would need to be converted to be compatible with the target operating system. Unfortunately, the openness of this software raises some technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below:
+This automation is implemented with free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux), etc.; however, Windows-specific files (like .bat scripts) would need to be converted to be compatible with the target operating system. Unfortunately, the openness of this software raises some technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below:
 
 
 =================
 Required software
 =================
   
-* GitHub - the script software is stored publicly on GitHub and it's easiest to use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use this URL: https://github.com/wwwild/CBC.git) 
+* GitHub - the script software is stored publicly on GitHub and you can use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use this URL: https://github.com/wwwild/CBC.git) 
 
-These are the steps for Windows (in this case Windows 7 and, unfortunately, they will vary for other Windows versions):
+These are the steps for installing Github desktop on Windows (in this case Windows 7 and, unfortunately, they will vary for other Windows versions):
   * Click the appropriate download link; e.g. Download for Windows (64 bit).
   * Save the file.
   * Run the executable.
@@ -156,7 +159,19 @@ Process Description
          d. ftp_file - FTPs the mp3 file to the cbcofconcrete.org web server
          e. ftp_File - FTPs the cbcmedia.html file to the cbcofconcrete.org web server
 
- 
+
+=================
+Changes to GitHub
+=================
+
+Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to GitHub so they are backed up and available for others to view. (Remember,  not all files - e.g. mp3 file - are stored in GitHub, so a backup would require pulling together GitHub and what's on cbcofconcrete.org. If you wanted to add the mp3 files to GitHub you would need to modify the .gitignore file to remove the line: MP3s/)  You will use the GitHub desktop to push the changes to the server.  Typically the cbcmedia.html is the only file that will have changed. 
+
+1. Start the GitHub Desktop via the Windows Start button.
+2. The Changes tab (on the left) will show you the changed files with the details of the changes on the right.
+3. In the Summary line (near bottom left) enter a change summary and a more detailed description in the Description control.
+4. Use the "Commit to master" button on the bottom left to push the changes to the GitHub server.
+
+
 =================
 Once a year setup
 =================
