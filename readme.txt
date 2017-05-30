@@ -326,8 +326,7 @@ I've written the code to be as simple and flexible as possible, but there are ce
 TODOs   
 =====
 
-* Add Git commands to script
-* Change backup file name to use date input    
+* None  
 
 
 =============
