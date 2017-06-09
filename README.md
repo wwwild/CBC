@@ -7,7 +7,7 @@ This is a set of files to automate maintaing the CBC media web page (http://cbco
     1. Validating your software installation
 1. Using the software
     1. Normal weekly sermon process
-        1. Process Description
+   +     1. Process Description
         1. Changes to GitHub
     1. Once a year setup
     1. Important notes
@@ -28,9 +28,8 @@ This automation is implemented with free, open source software.  This automation
 # Required software & installation
 
   
-* GitHub - the script software is stored publicly on GitHub and you can use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git) 
 
-These are the steps for installing Github desktop on Windows (in this case Windows 7 and, unfortunately, they will vary for other Windows versions):
+  * GitHub - the script software is stored publicly on GitHub and you can use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git) 
     * Click the appropriate download link; e.g. Download for Windows (64 bit).
     * Save the file.
     * Run the executable.
@@ -44,8 +43,8 @@ These are the steps for installing Github desktop on Windows (in this case Windo
     * Copy the `CBC-Sermon-Desktop.bat` file to your Windows desktop.
 
 * Java - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  To confirm if a Java JDK (as opposed to just a JRE) is installed enter the following command at a command prompt:
-> java -version
-As of this writing the current version of Java is 1.8. If necessary you should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the `Java Platform (JDK) Download` link, click the `Accept License Agreement` radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute it as appropriate. 
+  > java -version
+  As of this writing the current version of Java is 1.8. If necessary you should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the `Java Platform (JDK) Download` link, click the `Accept License Agreement` radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute it as appropriate. 
     * You will need to note the installation location of Java to later set the `JAVA_HOME` environment variable (see below).  
 
 * Ant - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version.  
