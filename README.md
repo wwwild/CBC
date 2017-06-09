@@ -17,6 +17,8 @@ This is a set of files to automate maintaing the CBC media web page (http://cbco
     1. Resolving multiple sermon files  
 1. Limitations  
 1. TODOs  
+1. Weekly sermon process sample output  
+  
   
 # Introduction  
   
@@ -250,7 +252,7 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
   
   
-### Important notes  
+## Important notes  
   
 1. Never edit the cbcmedia.html file manually unless you know what you are doing.  The ant regex processing depends on the format established there; so, if you mess anything up it will break the process.  
 2. The scope of this scripting is just the cbcmedia.html file and none of the other cbcofconcrete.org site files.  Therefore, you should have your own backup of these files.  Also, to simplify things it is assumed that the mp3 files on the cbcofconcrete.org site are the authortative versions; so, again, you should have your own backups.  (We could consider adding these to GitHub, and not a bad idea, just hasn't been done.)  
@@ -309,7 +311,7 @@ Also, there are a number of validations (e.g. date, file name) done by the scrip
    Then to confirm if the most recent cbcmedia.html file was updated...**TODO**  
   
   
-# Resolving multiple sermon files  
+## Resolving multiple sermon files  
   
   
 This used to be a more common issue when we had to process sermons via CD; however, it could possibly still happen that the technician has to restart the recording process and we wind up with more than one MP3 file, which need to be combined into a single file. Roughly, the steps are:  
@@ -358,7 +360,7 @@ The code is written to be as simple and flexible as is reasonable, but there are
   
   
   
-# Process sample output  
+# Weekly sermon process sample output  
   
 User inputs are in **bold**.  
   
