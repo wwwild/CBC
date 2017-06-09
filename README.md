@@ -140,10 +140,11 @@ Normally, if you're the only one working on the CBC site you won't have to worry
   
 This remainder of the process copies the sermon MP3 file, updates the HTML file, and FTPs the files to the server. For this process you need to have:  
   * The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.  
-  * The sermon information:  
-    * Sermon title  
-    * Bible passage  
-    * Speaker, which defaults to Rob.  
+* The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.  
+* The sermon information:  
+  * Sermon title  
+  * Bible passage  
+  * Speaker, which defaults to Rob.  
   
   
 To run the process double click the CBC-Sermon-Desktop.bat file (shortcut) on your Windows desktop and follow the prompts.  
@@ -152,15 +153,15 @@ To run the process double click the CBC-Sermon-Desktop.bat file (shortcut) on yo
 Assumptions and defaults:  
 1. The CBC memory stick inserted into a USB port will map to Windows drive E: - if this is not the case you can specify an alternate drive letter at the "RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]" prompt; e.g. G: (confirm the drive mapping with Windows Explorer).  
 2. The newest MP3 file on the memory stick is the one you want to process - if this is not the case (e.g. you missed a week) you can specify an alternate filename, respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
->   build weekly_sermon -Dlatest.mp3.file=ILENAME  
+>   build weekly_sermon -Dlatest.mp3.file=FILENAME  
 
    where FILENAME is a fully qualified Windows file name; e.g. E:\170521_0316.mp3; note, you will not be prompted for the memory stick drive letter, which is why FILENAME must be fully qualified.  
 3. Assumption: The MP3 file name on the memory stick is named using the pattern: YYMMDD_NNNN.mp3, where:  
-   YY = the two digit year  
-   MM = the two digit month  
-   YY = the two digit day  
-   NNNN = a four digit sequence number  
-   _ and .mp3 are invariant, as-is.  
+  * YY = the two digit year  
+  * MM = the two digit month  
+  * YY = the two digit day  
+  * NNNN = a four digit sequence number  
+  * _ and .mp3 are invariant, as-is.  
    If the input file name does not follow this mapping you must respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
 >   build weekly_sermon -Dcbc.sermon.year=YY -Dcbc.sermon.month=MM -Dcbc.sermon.day=DD (where YY, MM, YY are as per the patterns above.)  
   
@@ -299,7 +300,7 @@ Also, there are a number of validations (e.g. date, file name) done by the scrip
 >      ServerFiles/MP3s/170416_0310.mp3  
    which should be the last file you worked with from the memory stick.  If it's not you can start over from the beginning.  
    Otherwise, confirm the script copied and renamed this file for copying to the server:  
->     ls -1at ServerFiles/*.mp3 | head -1  
+>     ls -1at ServerFiles/\*.mp3 | head -1  
    You will get output like this:  
 >     ServerFiles/cbcserm04.16.2017.mp3  
    If the date portion of the two files don't match then continue in this list of steps; matching files would be, e.g. from above: "170416" & "04.16.2017".  
@@ -315,29 +316,30 @@ Also, there are a number of validations (e.g. date, file name) done by the scrip
   
   
 This used to be a more common issue when we had to process sermons via CD; however, it could possibly still happen that the technician has to restart the recording process and we wind up with more than one MP3 file, which need to be combined into a single file. Roughly, the steps are:  
-* You have Audacity installed (beyond the scope of this document).  
-* Open two Audacity Windows.  
-* In one Audacity window open the first MP3 file and:  
-  * Click the track drop-down window and select Split Stero Track  
-  * Close one of the two (X) tracks  
-  * Click the track drop-down window and select Mono  
-  * Edit->Select All  
-  * Edit->Copy  
-* In the second Audacity window past the clipboard contents (Edit -> Paste).  
-* Close the MP3 file in the first window and open the next MP3 file, doing the same two edit steps as before.  
-* In the second Audacity window you need to position to the end to paste the new audio:  
-  * Edit -> Select All  
-  * Edit -> Move Cursor ... -> to Selection End  
-  * Edit -> Paste  
-* Continue in this mode until you have processed all files.  
-* In the Audacity window with the amalgamated audio you can export this as an MP3 file (e.g. cbcsermMM.DD.YYYY.mp3)  
-* Then to continue the build script process:  
-  * FTP the MP3 file to the server; e.g.:  
-    build ftp_file -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
-  * Update the HTML page by running the script using the sample below, substituting the appropriate values; e.g.:  
+ * You have Audacity installed (beyond the scope of this document).  
+ * Open two Audacity Windows.  
+ * In one Audacity window open the first MP3 file and:  
+   * Click the track drop-down window and select Split Stero Track  
+   * Close one of the two (X) tracks  
+   * Click the track drop-down window and select Mono  
+   * Edit->Select All  
+   * Edit->Copy  
+ * In the second Audacity window past the clipboard contents (Edit -> Paste).  
+ * Close the MP3 file in the first window and open the next MP3 file, doing the same two edit steps as before.  
+ * In the second Audacity window you need to position to the end to paste the new audio:  
+   * Edit -> Select All  
+   * Edit -> Move Cursor ... -> to Selection End  
+   * Edit -> Paste  
+ * Continue in this mode until you have processed all files.  
+ * In the Audacity window with the amalgamated audio you can export this as an MP3 file (e.g. cbcsermMM.DD.YYYY.mp3)  
+ * Then to continue the build script process:  
+   * FTP the MP3 file to the server; e.g.:  
+>    build ftp_file -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
+
+   * Update the HTML page by running the script using the sample below, substituting the appropriate values; e.g.:  
     build modify_html_file -Dpyfile=cbcserm11.27.11.mp3 -Dpymonth=11 -Dpyday=27 -Dpyyear=11  
-  * FTP the modified HTML file to the server; e.g.:  
-    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
+   * FTP the modified HTML file to the server; e.g.:  
+>    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
   
   
   
