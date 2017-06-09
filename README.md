@@ -151,12 +151,13 @@ Assumptions and defaults:
 1. The CBC memory stick inserted into a USB port will map to Windows drive E: - if this is not the case you can specify an alternate drive letter at the "RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]" prompt; e.g. G: (confirm the drive mapping with Windows Explorer).  
 2. The newest MP3 file on the memory stick is the one you want to process - if this is not the case (e.g. you missed a week) you can specify an alternate filename, respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
 >   build weekly_sermon -Dlatest.mp3.file=ILENAME  
+
    where FILENAME is a fully qualified Windows file name; e.g. E:\170521_0316.mp3; note, you will not be prompted for the memory stick drive letter, which is why FILENAME must be fully qualified.  
-3. Assumption: The MP3 file name on the memory stick is named using the pattern: YYMMDD_####.mp3, where:  
+3. Assumption: The MP3 file name on the memory stick is named using the pattern: YYMMDD_NNNN.mp3, where:  
    YY = the two digit year  
    MM = the two digit month  
    YY = the two digit day  
-   #### = a four digit sequence number  
+   NNNN = a four digit sequence number  
    _ and .mp3 are invariant, as-is.  
    If the input file name does not follow this mapping you must respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
 >   build weekly_sermon -Dcbc.sermon.year=YY -Dcbc.sermon.month=MM -Dcbc.sermon.day=DD (where YY, MM, YY are as per the patterns above.)  
@@ -217,34 +218,35 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
 ### Example output  
   
+```
 >C:\CBC>build year_change  
->  
-> C:\CBC>ant year_change  
-> Buildfile: C:\CBC\build.xml  
->  
-> year_change:  
->     [input] What is the old year? (2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026)  
-> 2012  
->      [move] Moving 1 file to C:\CBC\ServerFiles  
->      [copy] Copying 1 file to C:\CBC\ServerFiles  
->    [script] Expected files and file structure found OK.  
->      [copy] Copying 1 file to C:\CBC\ServerFiles  
->  
-> ftp_file:  
->      [echo] Attempting to FTP file ServerFiles/cbcmedia2012.html (format binary=false) to cbcofconcrete.org...  
->       [ftp] sending files  
->       [ftp] transferring C:\CBC\ServerFiles\cbcmedia2012.html  
->       [ftp] 1 files sent  
->  
-> ftp_file:  
->      [echo] Attempting to FTP file ServerFiles/cbcmedia.html (format binary=false) to cbcofconcrete.org...  
->       [ftp] sending files  
->       [ftp] transferring C:\CBC\ServerFiles\cbcmedia.html  
->       [ftp] 1 files sent  
->  
-> BUILD SUCCESSFUL  
-> Total time: 33 seconds  
->  
+  
+ C:\CBC>ant year_change  
+ Buildfile: C:\CBC\build.xml  
+  
+ year_change:  
+     [input] What is the old year? (2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026)  
+ 2012  
+      [move] Moving 1 file to C:\CBC\ServerFiles  
+      [copy] Copying 1 file to C:\CBC\ServerFiles  
+    [script] Expected files and file structure found OK.  
+      [copy] Copying 1 file to C:\CBC\ServerFiles  
+  
+ ftp_file:  
+      [echo] Attempting to FTP file ServerFiles/cbcmedia2012.html (format binary=false) to cbcofconcrete.org...  
+       [ftp] sending files  
+       [ftp] transferring C:\CBC\ServerFiles\cbcmedia2012.html  
+       [ftp] 1 files sent  
+  
+ ftp_file:  
+      [echo] Attempting to FTP file ServerFiles/cbcmedia.html (format binary=false) to cbcofconcrete.org...  
+       [ftp] sending files  
+       [ftp] transferring C:\CBC\ServerFiles\cbcmedia.html  
+       [ftp] 1 files sent  
+  
+ BUILD SUCCESSFUL  
+ Total time: 33 seconds  
+```
   
   
   
@@ -280,16 +282,16 @@ To resolve this error you must install a Java JDK and set the JAVA_HOME environm
  * In this event you must rerun the FTP for each file until it completes successfully; e.g.:  
 >    build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
 >    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
- * Also, there are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting.  
+  
+  
+Also, there are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting:  
   
   
  * If the script fails with BUILD FAILED review the messages and take the appropriate action.  
- * Also, the build could fail mid-stream - e.g. Windows update or by forced termination via Ctrl-C. In these cases it's best to be aware of where you are in the process as you may need to do some cleanup.  
-  
-  
+ * The build could fail mid-stream - e.g. Windows update or by forced termination via Ctrl-C. In these cases it's best to be aware of where you are in the process as you may need to do some cleanup.  
  * Unfortunately, specific details of all possible error scenarios and recovery steps are beyond the scope of this document; however, these are some guidelines that can assist in recovery (note that the commands below depend on cygwin being installed):  
    - Enter the web page URL to confirm if the html page and mp3 files were copied to the server: http://cbcofconcrete.org/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click its `Download` link; if the file plays then it's likely OK and you're done.  
-   - If either file is not on the server - html page or mp3 file - confirm that they are on your local PC.  In a Windows shell (or you can use Windows Explorer), in your CBC GitHub folder enter:  
+   - If either file is not on the server - html page or mp3 file - confirm that they are on your local PC.  In a Windows shell (or you can use Windows Explorer), in your CBC GitHub folder enter (dependent on cygwin, but you can do the equivalent with Windows Explorer by sorting by date):  
 >      ls -1at ServerFiles/MP3s/*.mp3 | head -1  
    You will get output like this:  
 >      ServerFiles/MP3s/170416_0310.mp3  
@@ -301,6 +303,7 @@ To resolve this error you must install a Java JDK and set the JAVA_HOME environm
    If the date portion of the two files don't match then continue in this list of steps; matching files would be, e.g. from above: "170416" & "04.16.2017".  
    - Each time the script is run a backup of the .html file is created before adding the new sermon.  This backup is in the CBC\ServerFiles folder.  If the backup exists with a matching date to the last sermon file you worked with then you know the script processed at least this far.  To check if the BACKUP file exists:  
 >   ls -1at ServerFiles/cbcmedia.html-BACKUP* | head -1  
+
    and if the date portion matches your latest sermon file date you know the script got as far as creating the backup.  
    **TODO**  
    Then to confirm if the most recent cbcmedia.html file was updated...**TODO**  
@@ -359,78 +362,80 @@ The code is written to be as simple and flexible as is reasonable, but there are
   
 User inputs are in **bold**.  
   
->c:\Alligator\CBC> **build weekly_sermon**  
->  
-> INFO - Confirming that cbcofconcrete.org is up before continuing...  
->  
-> Buildfile: c:\Alligator\CBC\build.xml  
->  
-> is_server_up:  
->      [echo] INFO - Attempting to access cbcofconcrete.org FTP server...  
->       [ftp] listing files  
->       [ftp] 0 files listed  
->    [delete] Deleting: c:\Alligator\CBC\listing.txt  
->  
-> BUILD SUCCESSFUL  
-> Total time: 1 second  
->  
-> INFO - cbcofconcrete.org is responding; continuing with CBC sermon process.  
->  
-> Buildfile: c:\Alligator\CBC\build.xml  
->  
-> get_sermon_file_name:  
->      [echo]  
->     [input] RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]  
->  
->      [echo] INFO - Latest MP3 file is:  E:\170521_0316.mp3  
->  
-> parse_date_from_file:  
->  
-> weekly_sermon:  
->  
-> verify_sunday:  
->    [script] INFO - Confirmed the specified date (05/21/17) is a Sunday.  
->     [input] RESPOND - Is the following correct: Input file name=E:\170521_0316.mp3 / Date=05/21/17?  [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
-> **y**  
->  
-> abort_input_data:  
->      [echo] INFO - This script will produce cbcserm05.21.2017 from input MP3 file E:\170521_0316.mp3.  
->      [copy] Copying 1 file to c:\Alligator\CBC\ServerFiles  
->      [copy] Copying E:\170521_0316.mp3 to c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
->  
-> modify_html_file:  
->      [echo] INFO - This script will add cbcserm05.21.2017.mp3 to cbcmedia.html.  
->     [input] RESPOND - Input the sermon title:  
-> **Brighten Your Witness For Christ**  
->      [echo] INFO - The sermon title specified is:Brighten Your Witness For Christ.  
->     [input] RESPOND - Input the Bible passage (e.g. 1Peter 1:3-5):  
-> **Phillipians 2:14-16**  
->      [echo] INFO - The sermon passage specified is:Phillipians 2:14-16.  
->     [input] RESPOND - Input the speaker's name (default is: Pastor Rob Thomas): [Pastor Rob Thomas]  
-> **Duane S.**  
->      [echo] INFO - The speaker specified is: Duane S..  
->     [input] RESPOND - Is the following correct: Title=Brighten Your Witness For Christ / Passage=Phillipians 2:14-16 / Speaker=Duane S.? [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
-> **y**  
->  
-> abort_sermon_data:  
->      [copy] Copying 1 file to c:\Alligator\CBC\ServerFiles  
->      [echo] INFO - HTML backup file is: ServerFiles/cbcmedia.html-BACKUP021129  
->    [script] Processing cbcserm05.21.2017.mp3 to cbcmedia.html  
->    [script] Expected files and file structure found OK.  
->  
-> ftp_file:  
->      [echo] INFO - Attempting to FTP file ServerFiles/cbcserm05.21.2017.mp3 (format binary=true) to cbcofconcrete.org...  
->       [ftp] sending files  
->       [ftp] transferring c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
->       [ftp] 1 files sent  
->  
-> ftp_file:  
->      [echo] INFO - Attempting to FTP file ServerFiles/cbcmedia.html (format binary=false) to cbcofconcrete.org...  
->       [ftp] sending files  
->       [ftp] transferring c:\Alligator\CBC\ServerFiles\cbcmedia.html  
->       [ftp] 1 files sent  
->  
-> BUILD SUCCESSFUL  
-> Total time: 9 minutes 17 seconds  
+```
+c:\Alligator\CBC> **build weekly_sermon**  
   
+ INFO - Confirming that cbcofconcrete.org is up before continuing...  
+  
+ Buildfile: c:\Alligator\CBC\build.xml  
+  
+ is_server_up:  
+      [echo] INFO - Attempting to access cbcofconcrete.org FTP server...  
+       [ftp] listing files  
+       [ftp] 0 files listed  
+    [delete] Deleting: c:\Alligator\CBC\listing.txt  
+  
+ BUILD SUCCESSFUL  
+ Total time: 1 second  
+  
+ INFO - cbcofconcrete.org is responding; continuing with CBC sermon process.  
+  
+ Buildfile: c:\Alligator\CBC\build.xml  
+  
+ get_sermon_file_name:  
+      [echo]  
+     [input] RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]  
+  **[press enter here]**
+      [echo] INFO - Latest MP3 file is:  E:\170521_0316.mp3  
+  
+ parse_date_from_file:  
+  
+ weekly_sermon:  
+  
+ verify_sunday:  
+    [script] INFO - Confirmed the specified date (05/21/17) is a Sunday.  
+     [input] RESPOND - Is the following correct: Input file name=E:\170521_0316.mp3 / Date=05/21/17?  [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
+ **y**  
+  
+ abort_input_data:  
+      [echo] INFO - This script will produce cbcserm05.21.2017 from input MP3 file E:\170521_0316.mp3.  
+      [copy] Copying 1 file to c:\Alligator\CBC\ServerFiles  
+      [copy] Copying E:\170521_0316.mp3 to c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
+  
+ modify_html_file:  
+      [echo] INFO - This script will add cbcserm05.21.2017.mp3 to cbcmedia.html.  
+     [input] RESPOND - Input the sermon title:  
+ **Brighten Your Witness For Christ**  
+      [echo] INFO - The sermon title specified is:Brighten Your Witness For Christ.  
+     [input] RESPOND - Input the Bible passage (e.g. 1Peter 1:3-5):  
+ **Phillipians 2:14-16**  
+      [echo] INFO - The sermon passage specified is:Phillipians 2:14-16.  
+     [input] RESPOND - Input the speaker's name (default is: Pastor Rob Thomas): [Pastor Rob Thomas]  
+ **Duane S.**  
+      [echo] INFO - The speaker specified is: Duane S..  
+     [input] RESPOND - Is the following correct: Title=Brighten Your Witness For Christ / Passage=Phillipians 2:14-16 / Speaker=Duane S.? [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
+ **y**  
+  
+ abort_sermon_data:  
+      [copy] Copying 1 file to c:\Alligator\CBC\ServerFiles  
+      [echo] INFO - HTML backup file is: ServerFiles/cbcmedia.html-BACKUP021129  
+    [script] Processing cbcserm05.21.2017.mp3 to cbcmedia.html  
+    [script] Expected files and file structure found OK.  
+  
+ ftp_file:  
+      [echo] INFO - Attempting to FTP file ServerFiles/cbcserm05.21.2017.mp3 (format binary=true) to cbcofconcrete.org...  
+       [ftp] sending files  
+       [ftp] transferring c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
+       [ftp] 1 files sent  
+  
+ ftp_file:  
+      [echo] INFO - Attempting to FTP file ServerFiles/cbcmedia.html (format binary=false) to cbcofconcrete.org...  
+       [ftp] sending files  
+       [ftp] transferring c:\Alligator\CBC\ServerFiles\cbcmedia.html  
+       [ftp] 1 files sent  
+  
+ BUILD SUCCESSFUL  
+ Total time: 9 minutes 17 seconds  
+```
+
 [end]  
