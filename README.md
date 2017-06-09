@@ -139,7 +139,6 @@ Normally, if you're the only one working on the CBC site you won't have to worry
   
   
 This remainder of the process copies the sermon MP3 file, updates the HTML file, and FTPs the files to the server. For this process you need to have:  
-  * The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.  
 * The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.  
 * The sermon information:  
   * Sermon title  
