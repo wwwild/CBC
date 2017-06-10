@@ -1,7 +1,7 @@
 
 # Specific to CBC
 SetEnvironment.bat
-MP3s/
+*.mp3
 *.jar
 *.zip
 

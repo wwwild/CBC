@@ -14,6 +14,8 @@ This is a set of files to automate maintaining the CBC media web page (http://cb
 1. Issues and Debugging  
     1. Installation issues  
     1. Runtime issues  
+      1. FTP failures  
+      1. Validation and other failures  
     1. Resolving multiple sermon files  
 1. Limitations  
 1. TODOs  
@@ -30,69 +32,81 @@ This automation is implemented with free, open source software.  This automation
 # Required software & installation  
   
   
-  * GitHub - the script software is stored publicly on GitHub and you can use the desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git) 
-    * Click the appropriate download link; e.g. Download for Windows (64 bit).  
+  * GitHub - the CBC script software is stored publicly on GitHub and you can use the GitHub desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git) 
+    * Click the appropriate download link (**ensure it is GitHubDesktopSetup, NOT GitHubSetup** - two entirely different applications; e.g. Download for Windows (64 bit).  
     * Save the file.  
     * Run the executable.  
-    * After installation will GitHub start.  
+    * After installation GitHub will start.  
     * Select `Create your free account.` if you don't already have a login; otherwise, select `Sign into GitHub.com`.  
     * Enter your credentials and and click `Continue`.  
-    * Deselect the option to send usage information and click Finish.  
+    * Deselect the option to send usage information and click `Finish`.  
     * Once the GitHub desktop client starts:  
       * On the `Select a repository` screen click `Clone a repository`.  
-      * In the `Clone a repository` dialog enter the URL https://github.com/wwwild/CBC.git and your local path (you can take the default or specify a location of your choosing via the `Choose...` button, in this case the location you select will have "\CBC" added to the end of it automatically, for purposes of this documentation will assume a location of C:\aardvark\CBC) and click the `Clone` button. Cloning will take a few minutes.  
-    * Copy the `CBC-Sermon-Desktop.bat` file to your Windows desktop.  
+      * In the `Clone a repository` dialog enter the URL https://github.com/wwwild/CBC.git and your local path (you can take the default or specify a location of your choosing via the `Choose...` button, in this case the location you select will have "\CBC" added to the end of it automatically, (for purposes of this documentation will assume a location of C:\aardvark\CBC) and click the `Clone` button. Cloning will take a few minutes.  
+    * Copy the `CBC-Sermon-Desktop.bat` file, which is located in the CBC folder, to your Windows desktop.  
   
   
-* Java - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  
+* **Java** - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  
   * To confirm if a Java JDK (as opposed to just a JRE) is installed enter the following command at a command prompt:  
   > java -version  
-  * As of this writing the current version of Java is 1.8. If necessary you should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the Downloads tab and click the `Java Platform (JDK) Download` link, click the `Accept License Agreement` radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute it as appropriate. 
+  which should output something like ``java version "1.8..."``
+  * As of this writing the current version of Java is 1.8. If necessary you should download and install the Java JDK from  http://www.oracle.com/technetwork/java/javase/downloads/index.html, click the `Downloads` tab and click the `Java Platform (JDK) Download` link, click the `Accept License Agreement` radio button and click the appropriate download for your platform.  Save the resulting file to your computer and execute it as appropriate. 
     * You will need to note the installation location of Java to later set the `JAVA_HOME` environment variable (see below).  
   
   
-* Ant - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version of Ant.  
+* **Ant** - this is the tool that runs the scripts. Generally you can use the latest version of Ant, but beginning with version 10.1 Java 1.8 is required; so, if your Java version is not at this level choose a lower, compatible version of Ant.  
     * Download Ant from: https://ant.apache.org/bindownload.cgi  
     * You will need to unzip the installation file to your target installation folder.  
-    * Note the installation folder location for adding the Ant bin folder to the system `PATH` environment variable (e.g. if you unzip the Ant zip file to C:\Tools you would add c:\Tools\apache-ant-1.9.4\bin to the PATH) and for setting the `ANT_HOME` environment variable (see below). 
+    * Note the installation folder location for adding the Ant bin folder to the system `PATH` environment variable (e.g. if you unzip the Ant zip file to ``C:\Tools`` you would add ``c:\Tools\apache-ant-1.9.4\bin`` to the PATH) and for setting the `ANT_HOME` environment variable (see below). 
   
   
-* Jython - this is Java implementation of the Python scripting language and is used to validate that a sermon date is a Sunday. 
+* **Jython** - this is Java implementation of the Python scripting language and is used to validate that a sermon date is a Sunday. 
     * Download Jython from http://www.jython.org/downloads.html using the Standalone Jar link, as of this writing the current version is 2.7.0. 
-    * Place the jython jar file in the CBC folder created when you cloned the GitHub repository (e.g. C:\aardvark\CBC), this is where you will be running the scripts from. 
-    * The jar file is typically named with the version of the release it corresponds to (e.g. jython-standalone-2.7.0.jar) and you must ensure that the reference in build.xml corresponds to that name; search for `TODO` in that file to find the location where the jar is referenced and change if necessary). 
+    * Place the jython jar file in the CBC folder created when you cloned the GitHub repository (e.g. ``C:\aardvark\CBC``), this is where you will be running the scripts from. 
+    * The jar file is typically named with the version of the release it corresponds to (e.g. ``jython-standalone-2.7.0.jar``) and you must ensure that the reference in build.xml corresponds to that name; search for `TODO` in that file to find the location where the jar is referenced and change if necessary). 
   
   
-* Ant and Jython require the following additional Apache (www.apache.org) tools:  
-  * ant-contrib (http://ant-contrib.sourceforge.net/)
+* Ant and Jython require the following additional **Apache tools** (www.apache.org):  
+  * **ant-contrib** (http://ant-contrib.sourceforge.net/)
       * Download the binary zip from https://sourceforge.net/projects/ant-contrib/files/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip/download 
-      * You must extract the ant-contrib-1.0b3.jar file and place it in the Ant lib folder (e.g. C:\Tools\apache-ant-1.9.4\lib).  
-  * Apache_bsf  
-      * Download the binary zip from https://commons.apache.org/proper/commons-bsf/download_bsf.cgi 
-      * You must extract the bsf jar file from the zip and place it in the CBC folder created when you cloned the GitHub repository (e.g. C:\aardvark\CBC). The jar file should be found in the lib folder of the zip.  
-  * Apache_commons_logging  
+      * You must extract the ``ant-contrib-1.0b3.jar`` file and place it in the Ant lib folder (e.g. ``C:\Tools\apache-ant-1.9.4\lib``).  
+  * **Apache_bsf**  
+      * Download the binary zip (version 2.4.0) from https://commons.apache.org/proper/commons-bsf/download_bsf.cgi 
+      * You must extract the bsf jar file from the zip and place it in the CBC folder created when you cloned the GitHub repository (e.g. ``C:\aardvark\CBC``). The jar file should be found in the lib folder of the zip.  
+  * **Apache_commons_logging**  
       * Download the binary zip from https://commons.apache.org/proper/commons-logging/download_logging.cgi. 
       * You must extract the commons-logging jar file from the zip and place it in the CBC folder created when you cloned the GitHub repository. 
-      * The jar file is typically named with the version of the release it corresponds to (e.g. commons-logging-1.2.jar) and you must ensure that the reference in build.xml corresponds to that name; search for `TODO` in that file to find the location where the jar is referenced). 
-  * Apache_commons_net  
+      * The jar file is typically named with the version of the release it corresponds to (e.g. ``commons-logging-1.2.jar``) and you must ensure that the reference in build.xml corresponds to that name; search for `TODO` in that file to find the location where the jar is referenced). 
+  * **Apache_commons_net**  
       * Download the binary zip from https://commons.apache.org/proper/commons-net/download_net.cgi and place the resulting jar file in the Ant lib folder.  
-      * Modify the `CLASSPATH` variable in build.bat (in the CBC folder, e.g. C:\aardvark\CBC) if necessary; that is, the jar file is typically named with the version of the release it corresponds to (e.g. commons-net-3.6.jar) and you must ensure that the reference in build.bat corresponds to that name.  
+      * Modify the `CLASSPATH` variable in build.bat (in the CBC folder, e.g. ``C:\aardvark\CBC``) if necessary; that is, the jar file is typically named with the version of the release it corresponds to (e.g. ``commons-net-3.6.jar``) and you must ensure that the reference in build.bat corresponds to that name.  
   
 * Local customizations - Before using the CBC scripts you need to setup local customizations:  
     * Create a SetEnvironment.bat file in the CBC folder created when you cloned the GitHub repository (e.g. C:\aardvark\CBC).  This file will set environment variables that are required by the scripts.  **This file should not be checked into GitHub** (which is why it's in the .gitignore file).  Make note of the comments (REM) in the sample below and use it to create your SetEnvironment.bat file:  
-> REM This value of ANT_HOME is using the example from the steps above:  
-> @SET ANT_HOME=c:\Tools\apache-ant-1.9.4  
->  
-> REM You can use this setting as-is:  
-> @SET PATH=%PATH%;%ANT_HOME%\bin  
->  
-> REM Set the value of CBC_HOME to the CBC folder created when you cloned the GitHub repository  
-> @SET CBC_HOME=C:\aardvark\CBC  
->  
-> REM Note the substitutions you must make to these values: 
-> @set FTP_USERID=`<replace with the userid for the cbcofconcrete server>`  
-> @set FTP_PASSWORD=`<replace with the password for the cbcofconcrete server>`  
+```
+ REM This value of ANT_HOME is using the example from the steps above:  
+ @SET ANT_HOME=c:\Tools\apache-ant-1.9.4  
   
+ REM You can use this setting as-is:  
+ @SET PATH=%PATH%;%ANT_HOME%\bin  
+  
+ REM Set the value of JAVA_HOME as per the installation location; e.g.:
+ @SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0_131
+  
+ REM Set the value of CBC_HOME to the CBC folder created when you cloned the GitHub repository  
+ @SET CBC_HOME=C:\aardvark\CBC  
+  
+ REM Note the substitutions you must make to these values: 
+ @set FTP_USERID=`<replace with the userid for the cbcofconcrete server>`  
+ @set FTP_PASSWORD=`<replace with the password for the cbcofconcrete server>`  
+```
+    * Set the ``CBC_HOME`` environment variable  
+      * Right click `This PC` and select `Properties`  
+      * Select `Advanced system settings`  
+      * Click the `Environment Variables...` button  
+      * In the `User variables` section click the `New...` button  
+      * Enter ``CBC_HOME`` in the `Variable name:` field and the fully qualified path (e.g. ``C:\aardvark\CBC``) in the `Variable value` field  
+      * Click OK three times to save the changes and close the resulting dialog boxes.
   
 ## Validating your software installation  
   
@@ -197,7 +211,7 @@ Assumptions and defaults:
 ### Commiting changes to GitHub  
   
   
-Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to GitHub so they are backed up and available for others to view. (Remember,  not all files - e.g. mp3 file - are stored in GitHub, so a backup would require pulling together GitHub and what's on cbcofconcrete.org. If you wanted to add the mp3 files to GitHub you would need to modify the .gitignore file to remove the line: MP3s/)  You will use the GitHub desktop to push the changes to the server.  Typically the cbcmedia.html is the only file that will have changed.  
+Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to GitHub so they are backed up and available for others to view. (Remember,  not all files - e.g. mp3 file - are stored in GitHub, so a backup would require pulling together GitHub and what's on cbcofconcrete.org. If you wanted to add the mp3 files to GitHub you would need to modify the .gitignore file to remove the line: ``*.mp3``)  You will use the GitHub desktop to push the changes to the server.  Typically the cbcmedia.html is the only file that will have changed.  
   
 1. Start the GitHub Desktop via the Windows Start button.  
 2. The Changes tab (on the left) will show you the changed files with the details of the changes on the right.  
@@ -215,7 +229,7 @@ This process takes the existing cbcmedia.html for the year (after you've entered
 > build year_change  
   
   
-The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles and MP3s folders of the old year and copy all the old files from the previous year there.  
+The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles folder of the old year (e.g. 2017) and copy all the old files from the previous year there.  
   
   
 ### Example output  
@@ -265,17 +279,17 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
 ## Installation issues  
   
-  
-If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without JAVA_HOME set) you will see this error:  
+ * If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without JAVA_HOME set) you will see this error:  
 >  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar  
   
 To resolve this error you must install a Java JDK and set the JAVA_HOME environment variable to point to that location (see build.bat).  
-  
+ * Various errors may be caused by not properly copying the various jar files as per the installation files above.
   
   
 ## Runtime issues  
   
-  
+### FTP failures  
+
  * The FTP process should not fail (the CBC-Sermon.bat file pre-checks that the server is reachable), but in the unlikely event it does fail this is typical of the error you might see:  
 >    BUILD FAILED  
 >    C:\albatross\CBC\Web\build.xml:53: The following error occurred while executing this line:  
@@ -284,32 +298,31 @@ To resolve this error you must install a Java JDK and set the JAVA_HOME environm
  * In this event you must rerun the FTP for each file until it completes successfully; e.g.:  
 >    build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
 >    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
+ * If FTP login fails, ensure the environment variables - ``FTP_USERID`` and ``FTP_PASSWORD`` - are correct and do NOT have any trailing space(s) after the values.
+ * Various FTP failures can occur due to Anti-virus software and their firewall settings and controls.  To confirm if this is the issue turn off the anti-virus firewall and run the ``build is_server_up`` command to confirm.  Some anti-virus software, like AVG, must be completely uninstalled to turn off its firewall controls.
   
   
-Also, there are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting:  
-  
-  
- * If the script fails with BUILD FAILED review the messages and take the appropriate action.  
+### Validation and other failures  
+
+There are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting:  
+ * If the script fails with ``BUILD FAILED`` review the messages and take the appropriate action.  
  * The build could fail mid-stream - e.g. Windows update or by forced termination via Ctrl-C. In these cases it's best to be aware of where you are in the process as you may need to do some cleanup.  
  * Unfortunately, specific details of all possible error scenarios and recovery steps are beyond the scope of this document; however, these are some guidelines that can assist in recovery (note that the commands below depend on cygwin being installed):  
-   - Enter the web page URL to confirm if the html page and mp3 files were copied to the server: http://cbcofconcrete.org/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click its `Download` link; if the file plays then it's likely OK and you're done.  
+   - Enter the web page URL to confirm if the html page and mp3 files were copied to the server: http://cbcofconcrete.org/cbcmedia.html If the page shows up with your latest edits - sermon date, title, etc. - then you can confirm if the mp3 file copied successfully.  To confirm the mp3 file click its `Download` link; if the file plays then it's OK and you're done.  
    - If either file is not on the server - html page or mp3 file - confirm that they are on your local PC.  In a Windows shell (or you can use Windows Explorer), in your CBC GitHub folder enter (dependent on cygwin, but you can do the equivalent with Windows Explorer by sorting by date):  
->      ls -1at ServerFiles/MP3s/*.mp3 | head -1  
+>      ls -1at ServerFiles/*.mp3 | head -1  
    You will get output like this:  
->      ServerFiles/MP3s/170416_0310.mp3  
-   which should be the last file you worked with from the memory stick.  If it's not you can start over from the beginning.  
-   Otherwise, confirm the script copied and renamed this file for copying to the server:  
->     ls -1at ServerFiles/\*.mp3 | head -1  
-   You will get output like this:  
->     ServerFiles/cbcserm04.16.2017.mp3  
-   If the date portion of the two files don't match then continue in this list of steps; matching files would be, e.g. from above: "170416" & "04.16.2017".  
+>      ServerFiles/cbcserm04.16.2017.mp3  
+   which should be the last file you worked with from the memory stick.  If it's not you must start over from the beginning.  
    - Each time the script is run a backup of the .html file is created before adding the new sermon.  This backup is in the CBC\ServerFiles folder.  If the backup exists with a matching date to the last sermon file you worked with then you know the script processed at least this far.  To check if the BACKUP file exists:  
->   ls -1at ServerFiles/cbcmedia.html-BACKUP* | head -1  
-
-   and if the date portion matches your latest sermon file date you know the script got as far as creating the backup.  
-   **TODO**  
-   Then to confirm if the most recent cbcmedia.html file was updated...**TODO**  
-  
+>   ls -lat ServerFiles/cbcmedia.html-BACKUP* | head -1  
+   You will get output like this:  
+> -rwxrwx---+ 1 wwwild None 12416 Jun  9 18:48 ServerFiles/cbcmedia.html-BACKUP064830
+   If the date of the backup file matches the date you ran the sermon update process you know the script got as far as creating the backup.  
+   
+   - Then to confirm if the most recent cbcmedia.html file was updated run this cygwin command:
+> ls -at ServerFiles/cbcmedia.html-BACKUP* ServerFiles/cbcmedia.html | xargs diff
+   If no output is produced then no editing has yet taken place against cbcmedia.html and you can simply run the process again; otherwise, you should be able to FTP the files as per the steps in "FTP failures". 
   
 ## Resolving multiple sermon files  
   
