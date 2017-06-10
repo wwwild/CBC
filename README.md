@@ -14,8 +14,8 @@ This is a set of files to automate maintaining the CBC media web page (http://cb
 1. Issues and Debugging  
     1. Installation issues  
     1. Runtime issues  
-      1. FTP failures  
-      1. Validation and other failures  
+        1. FTP failures  
+        1. Validation and other failures  
     1. Resolving multiple sermon files  
 1. Limitations  
 1. TODOs  
@@ -32,13 +32,13 @@ This automation is implemented with free, open source software.  This automation
 # Required software & installation  
   
   
-  * GitHub - the CBC script software is stored publicly on GitHub and you can use the GitHub desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  (However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git) 
-    * Click the appropriate download link (**ensure it is GitHubDesktopSetup, NOT GitHubSetup** - two entirely different applications; e.g. Download for Windows (64 bit).  
+  * GitHub - the CBC script software is stored publicly on GitHub and you can use the GitHub desktop client to access the CBC scripts, which is available from https://desktop.github.com/.  However, if you just want to view the script code to see what's there you can use a browser with this URL: https://github.com/wwwild/CBC.git 
+    * Click the appropriate download link (**ensure the downloaded file is GitHubDesktopSetup.exe, NOT GitHubSetup.exe** - two entirely different applications), e.g. Download for Windows (64 bit).  
     * Save the file.  
     * Run the executable.  
     * After installation GitHub will start.  
-    * Select `Create your free account.` if you don't already have a login; otherwise, select `Sign into GitHub.com`.  
-    * Enter your credentials and and click `Continue`.  
+    * Select `Create your free account.` If you don't already have a login; otherwise, select `Sign into GitHub.com`.  
+    * Enter your credentials and click `Continue`.  
     * Deselect the option to send usage information and click `Finish`.  
     * Once the GitHub desktop client starts:  
       * On the `Select a repository` screen click `Clone a repository`.  
@@ -46,7 +46,7 @@ This automation is implemented with free, open source software.  This automation
     * Copy the `CBC-Sermon-Desktop.bat` file, which is located in the CBC folder, to your Windows desktop.  
   
   
-* **Java** - this is the foundation of these scripts as it is a prerequisite to Ant, jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  
+* **Java** - this is the foundation of these scripts as it is a prerequisite to Ant, Jython, etc. If you already have a Java JDK installed on your computer (assuming it's a current version) you can ignore the remainder of this bullet.  
   * To confirm if a Java JDK (as opposed to just a JRE) is installed enter the following command at a command prompt:  
   > java -version  
   which should output something like ``java version "1.8..."``
@@ -81,7 +81,7 @@ This automation is implemented with free, open source software.  This automation
       * Download the binary zip from https://commons.apache.org/proper/commons-net/download_net.cgi and place the resulting jar file in the Ant lib folder.  
       * Modify the `CLASSPATH` variable in build.bat (in the CBC folder, e.g. ``C:\aardvark\CBC``) if necessary; that is, the jar file is typically named with the version of the release it corresponds to (e.g. ``commons-net-3.6.jar``) and you must ensure that the reference in build.bat corresponds to that name.  
   
-* Local customizations - Before using the CBC scripts you need to setup local customizations:  
+* **Local customizations** - Before using the CBC scripts you need to setup local customizations:  
     * Create a SetEnvironment.bat file in the CBC folder created when you cloned the GitHub repository (e.g. C:\aardvark\CBC).  This file will set environment variables that are required by the scripts.  **This file should not be checked into GitHub** (which is why it's in the .gitignore file).  Make note of the comments (REM) in the sample below and use it to create your SetEnvironment.bat file:  
 ```
  REM This value of ANT_HOME is using the example from the steps above:  
@@ -97,9 +97,10 @@ This automation is implemented with free, open source software.  This automation
  @SET CBC_HOME=C:\aardvark\CBC  
   
  REM Note the substitutions you must make to these values: 
- @set FTP_USERID=`<replace with the userid for the cbcofconcrete server>`  
- @set FTP_PASSWORD=`<replace with the password for the cbcofconcrete server>`  
+ @set FTP_USERID=**<replace with the userid for the cbcofconcrete server>**  
+ @set FTP_PASSWORD=**<replace with the password for the cbcofconcrete server>**  
 ```
+  
     * Set the ``CBC_HOME`` environment variable  
       * Right click `This PC` and select `Properties`  
       * Select `Advanced system settings`  
@@ -108,35 +109,34 @@ This automation is implemented with free, open source software.  This automation
       * Enter ``CBC_HOME`` in the `Variable name:` field and the fully qualified path (e.g. ``C:\aardvark\CBC``) in the `Variable value` field  
       * Click OK three times to save the changes and close the resulting dialog boxes.
   
+  
 ## Validating your software installation  
   
 To confirm you have successfully installed the software follow these steps (expected output shown):  
 1. Open a Windows Command Processor window (a.k.a a DOS command prompt) via the Windows Start button.  
-2. Go to the directory where you've setup the GitHub repository; e.g. 
-> cd c:\aardvark\CBC  
-3. Set the required environment variables by typing `SetEnvironment.bat` and pressing enter:
-> SetEnvironment.bat  
-4. Run: 
-> build -p  
+2. Go to the directory where you've setup the GitHub repository; e.g. ``cd c:\aardvark\CBC``  
+3. Set the required environment variables by typing `SetEnvironment.bat` and pressing enter.  
+4. Run: ``build -p``  
   
 This is the expected output:  
-> Buildfile: c:\CBC\build.xml  
->  
-> Main targets:  
->  
-> ftp_file          FTP a file to the CBC server (called by weekly_sermon).  
->                   For example: build ftp_file -Dftp.file=ServerFiles/cbcserm09.02.2012.mp3 -Dftp.binary.mode=true  
->                   You must specify credentials via env. vars. FTP_USERID and FTP_PASSWORD  
-> modify_html_file  Modify the cbcmedia.html file for a weekly sermon (called by weekly_sermon).  
-> weekly_sermon     Copy MP3 file, update HTML, and FTP to web site.  
-> year_change       At year change rename cbcmedia.html and create a new file.  
->Default target: help  
+```
+ Buildfile: c:\CBC\build.xml  
   
+ Main targets:  
+  
+ ftp_file          FTP a file to the CBC server (called by weekly_sermon).  
+                   For example: build ftp_file -Dftp.file=ServerFiles/cbcserm09.02.2012.mp3 -Dftp.binary.mode=true  
+                   You must specify credentials via env. vars. FTP_USERID and FTP_PASSWORD  
+ modify_html_file  Modify the cbcmedia.html file for a weekly sermon (called by weekly_sermon).  
+ weekly_sermon     Copy MP3 file, update HTML, and FTP to web site.  
+ year_change       At year change rename cbcmedia.html and create a new file.  
+Default target: help  
+```  
+
 If this is not the output you get review error and correct (e.g. missing env. var., etc.).  
   
   
 # Using the software  
-  
   
 There are two typical use cases:  
 1. Normal weekly sermon process  
@@ -152,8 +152,8 @@ Normally, if you're the only one working on the CBC site you won't have to worry
 2. Use the "Fetch origin" button on the upper right to ensure your environment has the latest changes.  
   
   
-This remainder of the process copies the sermon MP3 file, updates the HTML file, and FTPs the files to the server. For this process you need to have:  
-* The weekly service MP3 file on the CBC-supplied memory stick; insert this into a USB port.  
+This remainder of the process copies the sermon mp3 file, updates the HTML file, and FTPs the files to the server. For this process you need to have:  
+* The weekly service mp3 file on the CBC-supplied memory stick; insert this into a USB port.  
 * The sermon information:  
   * Sermon title  
   * Bible passage  
@@ -164,12 +164,12 @@ To run the process double click the CBC-Sermon-Desktop.bat file (shortcut) on yo
   
   
 Assumptions and defaults:  
-1. The CBC memory stick inserted into a USB port will map to Windows drive E: - if this is not the case you can specify an alternate drive letter at the "RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]" prompt; e.g. G: (confirm the drive mapping with Windows Explorer).  
-2. The newest MP3 file on the memory stick is the one you want to process - if this is not the case (e.g. you missed a week) you can specify an alternate filename, respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
->   build weekly_sermon -Dlatest.mp3.file=FILENAME  
+1. The CBC memory stick inserted into a USB port will map to Windows drive F: - if this is not the case (quite likely) you can specify an alternate drive letter at the "RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]" prompt; e.g. G: (confirm the drive mapping with Windows Explorer).  
+2. The newest mp3 file on the memory stick is the one you want to process - if this is not the case (e.g. you missed a week) you can specify an alternate filename, respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
+```   build weekly_sermon -Dlatest.mp3.file=FILENAME``  
 
    where FILENAME is a fully qualified Windows file name; e.g. E:\170521_0316.mp3; note, you will not be prompted for the memory stick drive letter, which is why FILENAME must be fully qualified.  
-3. Assumption: The MP3 file name on the memory stick is named using the pattern: YYMMDD_NNNN.mp3, where:  
+3. Assumption: The mp3 file name on the memory stick is named using the pattern: YYMMDD_NNNN.mp3, where:  
   * YY = the two digit year  
   * MM = the two digit month  
   * YY = the two digit day  
@@ -178,7 +178,7 @@ Assumptions and defaults:
    If the input file name does not follow this mapping you must respond no to the prompt: "RESPOND - Is the following correct: Input file name=...." and then run this command:  
 >   build weekly_sermon -Dcbc.sermon.year=YY -Dcbc.sermon.month=MM -Dcbc.sermon.day=DD (where YY, MM, YY are as per the patterns above.)  
   
-**Note:** The alternate processing for numbers two and three above can be combined; e.g.: build weekly_sermon -Dlatest.mp3.file=E:\170507_0313.mp3 -Dcbc.sermon.year=17 -Dcbc.sermon.month=05 -Dcbc.sermon.day=21  
+**Note:** The alternate processing for numbers two and three above can be combined; e.g.: ``build weekly_sermon -Dlatest.mp3.file=E:\170507_0313.mp3 -Dcbc.sermon.year=17 -Dcbc.sermon.month=05 -Dcbc.sermon.day=21``  
   
   
   
@@ -269,7 +269,7 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
 ## Important notes  
   
 1. Never edit the cbcmedia.html file manually unless you know what you are doing.  The ant regex processing depends on the format established there; so, if you mess anything up it will break the process.  
-2. The scope of this scripting is just the cbcmedia.html file and none of the other cbcofconcrete.org site files.  Therefore, you should have your own backup of these files.  Also, to simplify things it is assumed that the mp3 files on the cbcofconcrete.org site are the authortative versions; so, again, you should have your own backups.  (We could consider adding these to GitHub, and not a bad idea, just hasn't been done.)  
+2. The scope of this scripting is just the cbcmedia.html file and none of the other cbcofconcrete.org site files.  Therefore, you should have your own backup of these files.  Also, to simplify things it is assumed that the mp3 files on the cbcofconcrete.org site are the authoritative versions; so, again, you should have your own backups.  (We could consider adding these to GitHub, and not a bad idea, just hasn't been done.)  
 3. Windows paths use backslashes, but the Ant/Java environment is quite happy with forward slashes.  I didn't take the time to make this consistent (my/this PC uses cygwin, which is also forward/backslash agnostic).  This could cause some angst/errors.  
   
   
@@ -279,8 +279,8 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
 ## Installation issues  
   
- * If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without JAVA_HOME set) you will see this error:  
->  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar  
+ * If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without ``JAVA_HOME`` set) you will see this error:  
+```  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar```  
   
 To resolve this error you must install a Java JDK and set the JAVA_HOME environment variable to point to that location (see build.bat).  
  * Various errors may be caused by not properly copying the various jar files as per the installation files above.
@@ -400,9 +400,9 @@ c:\Alligator\CBC> **build weekly_sermon**
   
  get_sermon_file_name:  
       [echo]  
-     [input] RESPOND - Input the memory stick drive letter - press enter to accept the default: [E:]  
+     [input] RESPOND - Input the memory stick drive letter - press enter to accept the default: [F:]  
   **[press enter here]**
-      [echo] INFO - Latest MP3 file is:  E:\170521_0316.mp3  
+      [echo] INFO - Latest MP3 file is:  F:\170521_0316.mp3  
   
  parse_date_from_file:  
   
@@ -410,13 +410,13 @@ c:\Alligator\CBC> **build weekly_sermon**
   
  verify_sunday:  
     [script] INFO - Confirmed the specified date (05/21/17) is a Sunday.  
-     [input] RESPOND - Is the following correct: Input file name=E:\170521_0316.mp3 / Date=05/21/17?  [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
+     [input] RESPOND - Is the following correct: Input file name=F:\170521_0316.mp3 / Date=05/21/17?  [Yy]es, [Nn]o (Yes, yes, Y, y, No, no, N, n)  
  **y**  
   
  abort_input_data:  
-      [echo] INFO - This script will produce cbcserm05.21.2017 from input MP3 file E:\170521_0316.mp3.  
+      [echo] INFO - This script will produce cbcserm05.21.2017 from input MP3 file F:\170521_0316.mp3.  
       [copy] Copying 1 file to c:\Alligator\CBC\ServerFiles  
-      [copy] Copying E:\170521_0316.mp3 to c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
+      [copy] Copying F:\170521_0316.mp3 to c:\Alligator\CBC\ServerFiles\cbcserm05.21.2017.mp3  
   
  modify_html_file:  
       [echo] INFO - This script will add cbcserm05.21.2017.mp3 to cbcmedia.html.  
