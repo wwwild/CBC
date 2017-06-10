@@ -1,4 +1,4 @@
-This is a set of files to automate maintaing the CBC media web page (http://cbcofconcrete.org/cbcmedia.html)from a CD-ROM or MP3 file.  
+This is a set of files to automate maintaining the CBC media web page (http://cbcofconcrete.org/cbcmedia.html) from a CD-ROM or MP3 file.  
   
 # Table of Contents  
   
