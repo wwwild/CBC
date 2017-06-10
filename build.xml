@@ -28,12 +28,12 @@
 
     <target name="get_sermon_file_name"
           unless="latest.mp3.file"
-          description="Obtains the latest MP3 file from specified drive (defaults to E:\).">
+          description="Obtains the latest MP3 file from specified drive (defaults to F:\).">
     <echo/>
     <input
       message="RESPOND - Input the memory stick drive letter - press enter to accept the default:"
       addproperty="input.mp3.dir"
-      defaultvalue="E:"/>
+      defaultvalue="F:"/>
 
     <timestampselector property="latest.mp3.file">
     <path>
