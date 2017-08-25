@@ -20,7 +20,7 @@ This is a set of files to automate maintaining the CBC media web page (http://cb
 1. Limitations  
 1. TODOs  
 1. Weekly sermon process sample output  
-  
+1. Generating the CBC Ministries web page
   
 # Introduction  
   
@@ -453,5 +453,26 @@ c:\Alligator\CBC> **build weekly_sermon**
  BUILD SUCCESSFUL  
  Total time: 9 minutes 17 seconds  
 ```
+
+
+# Generating the CBC Ministries web page
+
+A simple text file - cbcministries.txt - provides the input to create cbcministries.html.
+The format of the file is:
+Title: Some ministry title description
+Some label: Some description
+
+The "Some label" might be "Contact", "Description", "Phone number", whatever is helpful to be on the web page for that ministry.
+The "Some description" is then the information that goes with the label, like name, description, phone number, etc.
+
+For example:
+Title: Home Fellowship Groups
+Contact: Pastor Rob Thomas
+Phone #: 853-8511 
+Description: A weekly time of prayer, fellowship, and study
+
+The "Title:" string is never put to the web page - it's used to control the processing of the txt file, but everything else is put onto the web page literally (however HTML will remove multiple spaces); blank lines or lines without "Title:" or a colon "L:" are ignored.
+
+There is a desktop short-cut (CBC-Ministries-Desktop.bat) to the CBC-Ministries.bat file that runs the process.
 
 [end]  

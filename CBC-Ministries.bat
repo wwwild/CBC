@@ -1,9 +1,9 @@
 
 @ECHO OFF
 
-TITLE CBC Sermon
+TITLE CBC Ministries
 
-echo "INFO - Beginning CBC sermon process."
+echo "INFO - Beginning CBC ministry generation process."
 
 cd %CBC_HOME%
 
@@ -23,8 +23,8 @@ if errorlevel 1 (
    echo " "
 )
 
-CALL build.bat -f build.xml weekly_sermon
+CALL build.bat -f build.xml generate_ministries
 
-echo "INFO - Done with the CBC sermon process."
+echo "INFO - Done with the CBC ministry generation process."
 
 REM <end>

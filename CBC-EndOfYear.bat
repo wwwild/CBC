@@ -3,6 +3,13 @@
 
 TITLE CBC End of Year Processing
 
+echo "INFO - Beginning CBC end of year processing."
+echo "       The last sermon for the year must have been processed before running this script."
+set /p ANSWER="Do you want to continue? (y/n) "
+
+if not "%ANSWER%" == "y" GOTO LEAVE
+
+
 cd %CBC_HOME%
 
 CALL SetEnvironment.bat
@@ -24,5 +31,12 @@ if errorlevel 1 (
 CALL build.bat -f build.xml year_change  
 
 echo "INFO - Done with the CBC end of year process."
+
+exit /b
+
+:LEAVE 
+
+echo "INFO - Input was not y.  Leaving."
+
 
 REM <end>

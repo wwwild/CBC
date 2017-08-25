@@ -26,7 +26,7 @@
   </target>
 
 
-    <target name="get_sermon_file_name"
+  <target name="get_sermon_file_name"
           unless="latest.mp3.file"
           description="Obtains the latest MP3 file from specified drive (defaults to F:\).">
     <echo/>
@@ -48,7 +48,7 @@
   </target>
 
 
-    <target name="parse_date_from_file"
+  <target name="parse_date_from_file"
     depends="get_sermon_file_name"
     description="">
     <property name="mp3.file" value="${latest.mp3.file}"/>
@@ -138,25 +138,6 @@
      <antcall target="ftp_file">
        <param name="ftp.file" value="ServerFiles/cbcmedia.html"/>
      </antcall>
-  </target>
-
-  <target name="verify_sunday">
-    <property name="pyyear"  value="${cbc.sermon.year}"/>
-    <property name="pymonth" value="${cbc.sermon.month}"/>
-    <property name="pyday"   value="${cbc.sermon.day}"/>
-    <script language="jython"
-            classpath="${jar.bsf}:${jar.commons-logging}:${jar.jython}">
-import os
-import string
-import calendar
-import datetime
-
-day = calendar.weekday(string.atoi(pyyear), string.atoi(pymonth), string.atoi(pyday))                          
-if day != 6:
-  print "WARNING - The date specified is not a Sunday!"
-else:
-  print "INFO - Confirmed the specified date (" + pymonth + "/" + pyday +"/" + pyyear + ") is a Sunday."
-    </script>
   </target>
 
 
@@ -442,7 +423,187 @@ except:
       <param name="ftp.file" value="ServerFiles/cbcmedia.html"/>
     </antcall>
   </target>
+  
+  
+  <target name="verify_sunday">
+    <property name="pyyear"  value="${cbc.sermon.year}"/>
+    <property name="pymonth" value="${cbc.sermon.month}"/>
+    <property name="pyday"   value="${cbc.sermon.day}"/>
+    <script language="jython"
+            classpath="${jar.bsf}:${jar.commons-logging}:${jar.jython}">
+import os
+import string
+import calendar
+import datetime
 
+day = calendar.weekday(string.atoi(pyyear), string.atoi(pymonth), string.atoi(pyday))                          
+if day != 6:
+  print "WARNING - The date specified is not a Sunday!"
+else:
+  print "INFO - Confirmed the specified date (" + pymonth + "/" + pyday +"/" + pyyear + ") is a Sunday."
+    </script>
+  </target>
+
+
+  <target name="generate_ministries"
+          description="Read CBC-Ministries.txt, rewrite CBC Ministries.html, and FTP to web site.">
+
+    <antcall target="py_ministries">
+       <param name="input.file" value="cbcministries.txt"/>
+       <param name="html.file"  value="cbcministries.html"/>
+    </antcall>
+    
+    <antcall target="ftp_file">
+      <param name="ftp.file" value="ServerFiles/cbcministries.html"/>
+    </antcall>
+    
+  </target>
+  
+  
+  <target name="py_ministries">
+    <property name="pytext"  value="${input.file}"/>
+    <property name="pyhtml"  value="${html.file}"/>
+    <script language="jython"
+            classpath="${jar.bsf}:${jar.commons-logging}:${jar.jython}">
+import os
+import string
+
+
+print("INFO - Starting HTML generation process.")
+
+inputPath = "./ServerFiles"
+textFile = "/" + pytext
+
+try:
+  
+  # Process input data
+  if os.path.exists(inputPath) and os.path.isfile(inputPath + textFile):
+    print ("INFO - Expected files and file structure for " + inputPath + textFile + " found OK.")
+    
+    infile = open(inputPath + textFile,"r")
+    ministries = infile.readlines()
+    infile.close()
+    
+    newHtml = []
+    
+    bulletCount=0
+    
+    for line in ministries:
+      titleLoc = line.find("Title:")
+      if (titleLoc != -1):
+        # Identify Title: lines
+        
+        # Terminate a list of bullets before inserting a new title
+        if (bulletCount != 0):
+          newHtml.append('&lt;/UL&gt;&lt;br&gt;')
+        #endIf
+        bulletCount=0
+        title=line[titleLoc + len("Title:"):]
+        title=title.strip()
+        newHtml.append('&lt;P align="left"&gt;&lt;FONT color="#000125" size="+2"&gt;&lt;I&gt;&lt;B&gt;' + title + '&lt;/B&gt;&lt;/I&gt;&lt;/FONT&gt;&lt;/P&gt;')
+      else:
+        # Process other lines
+        
+        # Check for lines with "* "
+        asteriskLoc = line.find("* ")
+        if (asteriskLoc != -1):
+          line = line[asteriskLoc + len("* "):]
+        #endIf
+        
+        # Process lines only if they have a label:/data pair
+        lineData = line.split(":")
+        if (len(lineData) > 1):
+          if (bulletCount == 0):
+            newHtml.append('&lt;UL type="circle"&gt;')
+          #endIf
+          
+          # This is a "spacier" format:
+          #newHtml.append('&lt;LI&gt;&lt;P align="left"&gt;&lt;FONT size="+1"&gt;&lt;B&gt;' + lineData[0] + '&lt;/B&gt;: ' + lineData[1] + '&lt;/FONT&gt;&lt;/P&gt;&lt;/LI&gt;\n')
+          newHtml.append('&lt;LI&gt;&lt;FONT size="+1"&gt;&lt;B&gt;' + lineData[0] + '&lt;/B&gt;: ' + lineData[1] + '&lt;/FONT&gt;&lt;/LI&gt;')
+          bulletCount += 1
+        #endIf
+      #endIf
+    #endFor
+    
+    print("INFO - Done reading input data.")
+    
+  else:
+    print ("ERROR - Expected file " + inputPath + textFile + " not found. Verify that you are executing from expected location.")
+  #endIf
+  
+  
+  htmlFile = "/" + pyhtml
+  
+  # Process HTML file
+  if os.path.exists(inputPath) and os.path.isfile(inputPath + htmlFile):
+    print ("INFO - Expected files and file structure for " + inputPath + htmlFile + " found OK.")
+    infile = open(inputPath + htmlFile,"r")
+    html = infile.readlines()
+    infile.close()
+    
+    beginEntry="&lt;!-- ((( --&gt;"
+    endEntry="&lt;!-- ))) --&gt;"
+    throwAway = False
+    htmlLines = []
+    
+    for line in html:
+      
+      beginLoc = line.find(beginEntry)
+      if (beginLoc != -1):
+        # We start throwing lines away
+        throwAway = True
+        htmlLines.append(line)
+        continue
+      #endIf
+      endLoc = line.find(endEntry)
+      if (endLoc != -1):
+        # We stop throwing lines away
+        #print ("Stop throwing away")
+        throwAway = False
+        for line2 in newHtml:
+          htmlLines.append(line2)
+        #endFor
+        
+        htmlLines.append(" ")
+        htmlLines.append(line)
+        continue
+      #endIf
+      if (throwAway):
+        # Actually throw a line away
+        continue
+      else:
+        # Keep a line, pass through
+        htmlLines.append(line)
+      #endIf
+    #endFor
+    
+    print ("INFO - Rewriting " + inputPath + htmlFile + ".")
+    outfile = open(inputPath + htmlFile,"w")
+    for  line in htmlLines:
+      if (str(line).endswith('\n')):
+        outfile.write("%s" % line)
+      else:
+        outfile.write("%s\n" % line)
+      #endIf
+    #endFor
+    
+    outfile.close()
+    
+  else:
+    print ("ERROR - Expected file " + inputPath + htmlFile + " not found. Verify that you are executing from expected location.")
+    raise
+  #endIf
+  
+except:
+  print ("ERROR - Process failed - you should verify the integrity of your files:")
+  print ("        " + inputPath + textFile)
+  print ("        " + inputPath + htmlFile)
+  raise 
+#endTry
+    </script>
+  </target>
+  
+  
   <target name="abort_input_data" if="abort.input.data">
     <echo>ERROR - abort.input.data=${abort.input.data}</echo>
     <fail message="ERROR - ${abort.message}"/>
