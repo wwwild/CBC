@@ -1,30 +1,34 @@
-This is a set of files to automate maintaining the CBC media web page (http://cbcofconcrete.org/cbcmedia.html) from a CD-ROM or MP3 file.  
+This is a set of files to automate maintaining the CBC media page (http://cbcofconcrete.org/cbcmedia.html) from an MP3 file and the CBC ministries web page (http://cbcofconcrete.org/cbcministries.html) from a text file.  
   
 # Table of Contents  
   
 1. Introduction  
 1. Required software & installation  
     1. Validating your software installation  
-1. Using the software  
-    1. Normal weekly sermon process  
-        1. Process description  
-        1. Committing changes to GitHub  
-    1. Once a year setup  
-    1. Important notes  
-1. Issues and Debugging  
-    1. Installation issues  
-    1. Runtime issues  
-        1. FTP failures  
-        1. Validation and other failures  
-    1. Resolving multiple sermon files  
-1. Limitations  
-1. TODOs  
-1. Weekly sermon process sample output  
-1. Generating the CBC Ministries web page
-  
+1. Sermon web page update
+   1. Using the software  
+      1. Normal weekly sermon process  
+         1. Process description  
+         1. Committing changes to GitHub  
+      1. Once a year setup  
+      1. Important notes  
+   1. Issues and Debugging  
+      1. Installation issues  
+      1. Runtime issues  
+         1. FTP failures  
+         1. Validation and other failures  
+      1. Resolving multiple sermon files  
+   1. Limitations  
+   1. TODOs  
+  1. Weekly sermon process sample output  
+1. Ministries web page update
+  1. Description
+  1. Using the software
+
+
 # Introduction  
   
-This set of directories and files represents an automated system for maintaining the CBC media web page; i.e., the sermon web page.  The rest of the www.cbcofconcrete.org web pages are outside the scope of this automation.  
+This set of directories and files represents an automated system for maintaining the CBC media web page (i.e., the sermon web page) and ministries web page.  The rest of the www.cbcofconcrete.org web pages are outside the scope of this automation; however, it should be feasible to implement similar functionality for the calendar page.  
   
 This automation is implemented with free, open source software.  This automation has been developed on Windows, but should be portable to other operating systems that support Java (e.g. Mac OS, Linux), etc.; however, Windows-specific files (like .bat scripts) would need to be converted to be compatible with the target operating system. Unfortunately, the openness of this software raises some technical issues, mainly that over time the various versions are updated, creating dependencies, etc.  These are discussed below.  
   
@@ -134,9 +138,11 @@ Default target: help
 ```  
 
 If this is not the output you get review error and correct (e.g. missing env. var., etc.).  
-  
-  
-# Using the software  
+
+
+# Sermon web page update
+
+## Using the software  
   
 There are two typical use cases:  
 1. Normal weekly sermon process  
@@ -182,7 +188,7 @@ Assumptions and defaults:
   
   
   
-### Process description  
+#### Process description  
   
   
 1. CBC-Sermon-Desktop.bat is a convenience script to start the process from the Windows desktop, which:  
@@ -208,7 +214,7 @@ Assumptions and defaults:
          e. ftp_File - FTPs the cbcmedia.html file to the cbcofconcrete.org web server  
   
   
-### Commiting changes to GitHub  
+#### Commiting changes to GitHub  
   
   
 Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to GitHub so they are backed up and available for others to view. (Remember,  not all files - e.g. mp3 file - are stored in GitHub, so a backup would require pulling together GitHub and what's on cbcofconcrete.org. If you wanted to add the mp3 files to GitHub you would need to modify the .gitignore file to remove the line: ``*.mp3``)  You will use the GitHub desktop to push the changes to the server.  Typically the cbcmedia.html is the only file that will have changed.  
@@ -221,7 +227,7 @@ Periodically (e.g. weekly, monthly, or quarterly) you should commit changes to G
   
   
   
-## Once a year setup  
+### Once a year setup  
   
 This process takes the existing cbcmedia.html for the year (after you've entered the last sermon for the year), renames it, creates a new cbcmedia.html file and FTPs the file to the server.  
   
@@ -232,7 +238,7 @@ This process takes the existing cbcmedia.html for the year (after you've entered
 The script doesn't do this, but you may want to: I create a subdirectory in the ServerFiles folder of the old year (e.g. 2017) and copy all the old files from the previous year there.  
   
   
-### Example output  
+#### Example output  
   
 ```
 >C:\CBC>build year_change  
@@ -266,7 +272,7 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
   
   
-## Important notes  
+### Important notes  
   
 1. Never edit the cbcmedia.html file manually unless you know what you are doing.  The ant regex processing depends on the format established there; so, if you mess anything up it will break the process.  
 2. The scope of this scripting is just the cbcmedia.html file and none of the other cbcofconcrete.org site files.  Therefore, you should have your own backup of these files.  Also, to simplify things it is assumed that the mp3 files on the cbcofconcrete.org site are the authoritative versions; so, again, you should have your own backups.  (We could consider adding these to GitHub, and not a bad idea, just hasn't been done.)  
@@ -274,10 +280,10 @@ The script doesn't do this, but you may want to: I create a subdirectory in the 
   
   
   
-# Issues and debugging  
+## Issues and debugging  
   
   
-## Installation issues  
+### Installation issues  
   
  * If you only have a Java runtime (JRE) installed and not a full JDK installed (i.e. without ``JAVA_HOME`` set) you will see this error:  
 ```  Unable to locate tools.jar. Expected to find it in C:\Program Files\Java\jre7\lib\tools.jar```  
@@ -286,23 +292,10 @@ To resolve this error you must install a Java JDK and set the JAVA_HOME environm
  * Various errors may be caused by not properly copying the various jar files as per the installation files above.
   
   
-## Runtime issues  
-  
-### FTP failures  
+### Runtime issues  
 
- * The FTP process should not fail (the CBC-Sermon.bat file pre-checks that the server is reachable), but in the unlikely event it does fail this is typical of the error you might see:  
->    BUILD FAILED  
->    C:\albatross\CBC\Web\build.xml:53: The following error occurred while executing this line:  
->    C:\albatross\CBC\Web\build.xml:162: error during FTP transfer: java.net.SocketException: Connection reset  
->    ...  
- * In this event you must rerun the FTP for each file until it completes successfully; e.g.:  
->    build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
->    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
- * If FTP login fails, ensure the environment variables - ``FTP_USERID`` and ``FTP_PASSWORD`` - are correct and do NOT have any trailing space(s) after the values.
- * Various FTP failures can occur due to Anti-virus software and their firewall settings and controls.  To confirm if this is the issue turn off the anti-virus firewall and run the ``build is_server_up`` command to confirm.  Some anti-virus software, like AVG, must be completely uninstalled to turn off its firewall controls.
-  
-  
-### Validation and other failures  
+
+#### Validation and other failures  
 
 There are a number of validations (e.g. date, file name) done by the script, which can cause the script to fail, requiring restarting:  
  * If the script fails with ``BUILD FAILED`` review the messages and take the appropriate action.  
@@ -324,7 +317,7 @@ There are a number of validations (e.g. date, file name) done by the script, whi
 > ls -at ServerFiles/cbcmedia.html-BACKUP* ServerFiles/cbcmedia.html | xargs diff
    If no output is produced then no editing has yet taken place against cbcmedia.html and you can simply run the process again; otherwise, you should be able to FTP the files as per the steps in "FTP failures". 
   
-## Resolving multiple sermon files  
+### Resolving multiple sermon files  
   
   
 This used to be a more common issue when we had to process sermons via CD; however, it could possibly still happen that the technician has to restart the recording process and we wind up with more than one MP3 file, which need to be combined into a single file. Roughly, the steps are:  
@@ -355,7 +348,7 @@ This used to be a more common issue when we had to process sermons via CD; howev
   
   
   
-# Limitations  
+## Limitations  
   
   
 The code is written to be as simple and flexible as is reasonable, but there are certain tradeoffs and limitations it may help you to be aware of. Namely:  
@@ -368,13 +361,13 @@ The code is written to be as simple and flexible as is reasonable, but there are
   
   
   
-# TODOs  
+## TODOs  
   
 * Clear steps, procedures for using GitHub.  
   
   
   
-# Weekly sermon process sample output  
+## Weekly sermon process sample output  
   
 User inputs are in **bold**.  
   
@@ -455,12 +448,24 @@ c:\Alligator\CBC> **build weekly_sermon**
 ```
 
 
-# Generating the CBC Ministries web page
+# Ministries web page update
+
+## Description
+The updating of the CBC ministries web page differs significantly from the media web page update process in that a separate file (i.e. the sermon MP3 file) isn't being processed. However, it does reuse the framework established for the media process.  That is it:
+* Duplicates the same batch file structure
+* Utilizes the same Python implementation
+* Is executed via the same build.xml script
+
+
+## Edit the source cbcministries.txt file
+
 
 A simple text file - cbcministries.txt - provides the input to create cbcministries.html.
 The format of the file is:
+```
 Title: Some ministry title description
 Some label: Some description
+```
 
 The "Some label" might be "Contact", "Description", "Phone number", whatever is helpful to be on the web page for that ministry.
 The "Some description" is then the information that goes with the label, like name, description, phone number, etc.
@@ -471,8 +476,23 @@ Contact: Pastor Rob Thomas
 Phone #: 853-8511 
 Description: A weekly time of prayer, fellowship, and study
 
-The "Title:" string is never put to the web page - it's used to control the processing of the txt file, but everything else is put onto the web page literally (however HTML will remove multiple spaces); blank lines or lines without "Title:" or a colon "L:" are ignored.
+The "Title:" string is never put to the web page - it's used to control the processing of the txt file - but everything else is put onto the web page literally, including the text to the right of "Title: " (however HTML will remove multiple spaces); blank lines or lines without "Title:" or a colon "Label:" are ignored.
 
-There is a desktop short-cut (CBC-Ministries-Desktop.bat) to the CBC-Ministries.bat file that runs the process.
+There is a desktop short-cut (CBC-Ministries-Desktop.bat, you should copy to your desktop) to the CBC-Ministries.bat file that runs the process.
+
+
+# FTP failures  
+
+ * The FTP process should not fail (the CBC-Sermon.bat file pre-checks that the server is reachable), but in the unlikely event it does fail this is typical of the error you might see:  
+>    BUILD FAILED  
+>    C:\albatross\CBC\Web\build.xml:53: The following error occurred while executing this line:  
+>    C:\albatross\CBC\Web\build.xml:162: error during FTP transfer: java.net.SocketException: Connection reset  
+>    ...  
+ * In this event you must rerun the FTP for each file until it completes successfully; e.g.:  
+>    build ftp_file  -Dftp.binary.mode=true -Dftp.file=ServerFiles/cbcsermMM.DD.YYYY.mp3  
+>    build ftp_file -Dftp.file=ServerFiles/cbcmedia.html  
+ * If FTP login fails, ensure the environment variables - ``FTP_USERID`` and ``FTP_PASSWORD`` - are correct and do NOT have any trailing space(s) after the values.
+ * Various FTP failures can occur due to Anti-virus software and their firewall settings and controls.  To confirm if this is the issue turn off the anti-virus firewall and run the ``build is_server_up`` command to confirm.  Some anti-virus software, like AVG, must be completely uninstalled to turn off its firewall controls.
+  
 
 [end]  
